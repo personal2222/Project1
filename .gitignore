@@ -1,14 +1,56 @@
-*.class
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# Editor backup files
+*~
+*.bak
+
+# Class Files #
+*.class
 
 # Package Files #
 *.jar
 *.war
 *.ear
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-/nbproject/private/
-/build/
+# NetBeans specific #
+nbproject/*
+!nbproject/project.properties
+!nbproject/project.xml
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# Eclipse configuration files
+# NOTE: If you want to use the Git plugin for Eclipse, then 
+# do NOT exclude .classpath and .project!
+.settings/
+.metadata/
+.classpath
+.project
+
+# Default Eclipse output directory
+bin/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+.Icon?
+ehthumbs.db
+Thumbs.db
+src/lab03/Test.java
+build.xml
+manifest.mf
+nbproject/project.properties
+nbproject/project.xml
+src/lab05/lab05 - NetBeans.pdf
+src/MyWork.java
+src/MyWork.java
+bucknell.txt
+alice.txt
+Testresult.html
+WCtest result.txt
+Testresult.txt
