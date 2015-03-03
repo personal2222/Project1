@@ -8,10 +8,8 @@ package hw01;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Scanner;
 import javafx.scene.media.AudioClip;
 import javax.sound.sampled.Mixer;
-import javax.swing.JFileChooser;
 
 /**
  *
@@ -66,21 +64,6 @@ public class Sound {
     public double getVolumn() {
         double i = clip.getVolume();
         return i;
-    }
-
-    public static void main(String[] args) throws MalformedURLException {
-
-        JFileChooser fc = new JFileChooser(".");
-        fc.showOpenDialog(null);
-        File file1 = fc.getSelectedFile();
-        Sound sound = new Sound(file1);
-        System.out.println("Now the volumn is " + sound.getVolumn());
-        Scanner a = new Scanner(System.in);
-        double volumn = a.nextDouble();
-        sound.setVolumn(volumn);
-        System.out.println("Now the volumn is " + sound.getVolumn());
-
-        //sound.play();
     }
 
 }
