@@ -43,7 +43,11 @@ public class Complex {
     }
 
     public Complex negate() {
-        return new Complex(this.real, this.imag);
+        return new Complex(-this.real, -this.imag);
+    }
+
+    public Complex conjugate() {
+        return new Complex(this.real, -this.imag);
     }
 
     public Complex mul(Complex a) {
@@ -60,6 +64,24 @@ public class Complex {
 
     public Complex exp() {
         return new Complex(Math.exp(real) * Math.cos(this.imag), Math.exp(real) * Math.sin(this.imag));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Complex other = (Complex) obj;
+        if (Double.doubleToLongBits(this.real) != Double.doubleToLongBits(other.real)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.imag) != Double.doubleToLongBits(other.imag)) {
+            return false;
+        }
+        return true;
     }
 
 }
