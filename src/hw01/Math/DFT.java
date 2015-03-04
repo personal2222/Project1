@@ -2,7 +2,7 @@
  * CSCI205 - Software Engineering and Design
  * Spring 2015
  *
- * Name: Zhengri Fan
+ * Name: Zhengri Fan Jiayu Huang
  * Date: 2015-2-28
  * Time: 23:24:19
  *
