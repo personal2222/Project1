@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -54,18 +53,40 @@ public class Sound_alt {
         } catch (LineUnavailableException e) {
             e.printStackTrace();
         }
-        File qwe = new File("./src/hw01/ccc.wav");
-        URL soundURL = audioFile.toURI().toURL();
-        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundURL);
-        byte[] b;
-        b = new byte[(int) audioStream.getFrameLength() * 2 + 1];
-        System.out.println(audioStream.getFrameLength());
-        int a = audioStream.read(b);
-        System.out.print("\n");
-        ByteArrayInputStream k = new ByteArrayInputStream(b);
-        AudioFormat c = audioStream.getFormat();
-        AudioInputStream out = new AudioInputStream(k, c, (int) audioStream.getFrameLength() * 2 + 1);
-        AudioSystem.write(out, AudioFileFormat.Type.WAVE, qwe);
 
+        clip.start();
+
+    }
+
+    public void write(String outputFilePath, AudioInputStream audioStream) throws IOException {
+        File outputFile = new File(outputFilePath);
+        int byteLength = (int) audioStream.getFrameLength() * 2 + 1;
+        byte[] rawWave = this.readRawWav(audioStream);
+        AudioFormat audioFormat = audioStream.getFormat();
+
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(rawWave);
+        AudioInputStream out = new AudioInputStream(byteStream, audioFormat, byteLength);
+        AudioSystem.write(out, AudioFileFormat.Type.WAVE, outputFile);
+        out.close();
+        byteStream.close();
+    }
+
+    public void write(String outputFilePath, byte[] rawWave, AudioFormat audioFormat) throws IOException {
+        File outputFile = new File(outputFilePath);
+        int byteLength = rawWave.length;
+
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(rawWave);
+        AudioInputStream out = new AudioInputStream(byteStream, audioFormat, byteLength);
+        AudioSystem.write(out, AudioFileFormat.Type.WAVE, outputFile);
+        out.close();
+        byteStream.close();
+    }
+
+    public byte[] readRawWav(AudioInputStream audioStream) throws IOException {
+        byte[] rawWave;
+        int byteLength = (int) audioStream.getFrameLength() * 2 + 1;
+        rawWave = new byte[byteLength];
+        audioStream.read(rawWave);
+        return rawWave;
     }
 }
