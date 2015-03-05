@@ -38,12 +38,14 @@ public class Sound_alt {
         File file = new File("./src/hw01/Jump2.wav");
         Sound_alt sound = new Sound_alt(file);
         sound.play();
+        byte[] rawdata = sound.readRawWav(file);
+        sound.write("./src/hw01/copypaster.wav", sound.readInput(file));
     }
 
     public Sound_alt(File file) {
         mixInfos = AudioSystem.getMixerInfo();
         mixer = AudioSystem.getMixer(mixInfos[0]);
-        audioFile = file;;
+        audioFile = file;
     }
 
     public void play() throws MalformedURLException, LineUnavailableException, UnsupportedAudioFileException, IOException, InterruptedException {
@@ -74,7 +76,6 @@ public class Sound_alt {
     public void write(String outputFilePath, byte[] rawWave, AudioFormat audioFormat) throws IOException {
         File outputFile = new File(outputFilePath);
         int byteLength = rawWave.length;
-
         ByteArrayInputStream byteStream = new ByteArrayInputStream(rawWave);
         AudioInputStream out = new AudioInputStream(byteStream, audioFormat, byteLength);
         AudioSystem.write(out, AudioFileFormat.Type.WAVE, outputFile);
@@ -89,4 +90,13 @@ public class Sound_alt {
         audioStream.read(rawWave);
         return rawWave;
     }
+
+    public byte[] readRawWav(File audioFile) throws IOException, UnsupportedAudioFileException {
+        return readRawWav(readInput(audioFile));
+    }
+
+    public AudioInputStream readInput(File audioFile) throws MalformedURLException, UnsupportedAudioFileException, IOException {
+        return AudioSystem.getAudioInputStream(audioFile.toURI().toURL());
+    }
+
 }
