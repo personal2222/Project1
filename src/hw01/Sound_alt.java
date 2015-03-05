@@ -35,11 +35,15 @@ public class Sound_alt {
     private File audioFile;
 
     public static void main(String[] args) throws LineUnavailableException, UnsupportedAudioFileException, IOException, MalformedURLException, InterruptedException {
-        File file = new File("./src/hw01/Jump2.wav");
+        File file = new File("./src/hw01/Jump.wav");
         Sound_alt sound = new Sound_alt(file);
         sound.play();
         byte[] rawdata = sound.readRawWav(file);
         sound.write("./src/hw01/copypaster.wav", sound.readInput(file));
+
+        AudioFormat audioFormat = AudioSystem.getAudioFileFormat(file.toURI().toURL()).getFormat();
+        sound.write("./src/hw01/testEcho.wav", sound.echo(100, 1.0, rawdata), audioFormat);
+        //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
     }
 
     public Sound_alt(File file) {
@@ -77,7 +81,7 @@ public class Sound_alt {
         File outputFile = new File(outputFilePath);
         int byteLength = rawWave.length;
         ByteArrayInputStream byteStream = new ByteArrayInputStream(rawWave);
-        AudioInputStream out = new AudioInputStream(byteStream, audioFormat, byteLength);
+        AudioInputStream out = new AudioInputStream(byteStream, audioFormat, byteLength * 2 + 1);
         AudioSystem.write(out, AudioFileFormat.Type.WAVE, outputFile);
         out.close();
         byteStream.close();
@@ -97,6 +101,18 @@ public class Sound_alt {
 
     public AudioInputStream readInput(File audioFile) throws MalformedURLException, UnsupportedAudioFileException, IOException {
         return AudioSystem.getAudioInputStream(audioFile.toURI().toURL());
+    }
+
+    public byte[] readRawWav() throws IOException, UnsupportedAudioFileException {
+        return this.readRawWav(this.audioFile);
+    }
+
+    public byte[] echo(int delayInMiSec, double decay, byte[] rawWav) {
+        int sampleDelay = (int) 44.100 * delayInMiSec * 2;
+        for (int i = 0; i < rawWav.length - sampleDelay; i++) {
+            rawWav[i + sampleDelay] += (byte) ((float) rawWav[i] * decay);
+        }
+        return rawWav;
     }
 
 }
