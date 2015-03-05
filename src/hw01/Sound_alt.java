@@ -29,27 +29,46 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class Sound_alt {
 
+    public static void main(String[] args) throws LineUnavailableException, UnsupportedAudioFileException, IOException, MalformedURLException, InterruptedException {
+        File file = new File("./src/hw01/Jump.wav");
+        Sound_alt sound = new Sound_alt(file);
+        sound.play();
+        Thread.sleep(1000);
+
+//        byte[] rawdata = sound.readRawWav(file);
+//        sound.write("./src/hw01/copypaster.wav", sound.readInput(file));
+//
+//        AudioFormat audioFormat = AudioSystem.getAudioFileFormat(file.toURI().toURL()).getFormat();
+//        sound.write("./src/hw01/testEcho.wav", sound.echo(100, 1.0, rawdata), audioFormat);
+//        //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
+    }
+
     private Mixer mixer;
     private Clip clip;
     private Mixer.Info[] mixInfos;
     private File audioFile;
 
-    public static void main(String[] args) throws LineUnavailableException, UnsupportedAudioFileException, IOException, MalformedURLException, InterruptedException {
-        File file = new File("./src/hw01/Jump.wav");
-        Sound_alt sound = new Sound_alt(file);
-        sound.play();
-        byte[] rawdata = sound.readRawWav(file);
-        sound.write("./src/hw01/copypaster.wav", sound.readInput(file));
-
-        AudioFormat audioFormat = AudioSystem.getAudioFileFormat(file.toURI().toURL()).getFormat();
-        sound.write("./src/hw01/testEcho.wav", sound.echo(100, 1.0, rawdata), audioFormat);
-        //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
-    }
-
     public Sound_alt(File file) {
         mixInfos = AudioSystem.getMixerInfo();
         mixer = AudioSystem.getMixer(mixInfos[0]);
         audioFile = file;
+    }
+
+    public byte[] echo(int delayInMiSec, double decay, byte[] rawWav) {
+        int sampleDelay = (int) 44.100 * delayInMiSec * 2;
+        for (int i = 0; i < rawWav.length - sampleDelay; i++) {
+            rawWav[i + sampleDelay] += (byte) ((float) rawWav[i] * decay);
+        }
+        return rawWav;
+    }
+
+    public byte[] echo(int delayInMiSec, double decay) throws IOException, UnsupportedAudioFileException {
+        byte[] rawWav = this.readRawWav();
+        int sampleDelay = (int) 44.100 * delayInMiSec * 2;
+        for (int i = 0; i < rawWav.length - sampleDelay; i++) {
+            rawWav[i + sampleDelay] += (byte) ((float) rawWav[i] * decay);
+        }
+        return rawWav;
     }
 
     public void play() throws MalformedURLException, LineUnavailableException, UnsupportedAudioFileException, IOException, InterruptedException {
@@ -59,32 +78,13 @@ public class Sound_alt {
         } catch (LineUnavailableException e) {
             e.printStackTrace();
         }
-
         clip.start();
+        Thread.sleep(1000);
 
     }
 
-    public void write(String outputFilePath, AudioInputStream audioStream) throws IOException {
-        File outputFile = new File(outputFilePath);
-        int byteLength = (int) audioStream.getFrameLength() * 2 + 1;
-        byte[] rawWave = this.readRawWav(audioStream);
-        AudioFormat audioFormat = audioStream.getFormat();
-
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(rawWave);
-        AudioInputStream out = new AudioInputStream(byteStream, audioFormat, byteLength);
-        AudioSystem.write(out, AudioFileFormat.Type.WAVE, outputFile);
-        out.close();
-        byteStream.close();
-    }
-
-    public void write(String outputFilePath, byte[] rawWave, AudioFormat audioFormat) throws IOException {
-        File outputFile = new File(outputFilePath);
-        int byteLength = rawWave.length;
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(rawWave);
-        AudioInputStream out = new AudioInputStream(byteStream, audioFormat, byteLength * 2 + 1);
-        AudioSystem.write(out, AudioFileFormat.Type.WAVE, outputFile);
-        out.close();
-        byteStream.close();
+    public AudioInputStream readInput(File audioFile) throws MalformedURLException, UnsupportedAudioFileException, IOException {
+        return AudioSystem.getAudioInputStream(audioFile.toURI().toURL());
     }
 
     public byte[] readRawWav(AudioInputStream audioStream) throws IOException {
@@ -99,20 +99,30 @@ public class Sound_alt {
         return readRawWav(readInput(audioFile));
     }
 
-    public AudioInputStream readInput(File audioFile) throws MalformedURLException, UnsupportedAudioFileException, IOException {
-        return AudioSystem.getAudioInputStream(audioFile.toURI().toURL());
-    }
-
     public byte[] readRawWav() throws IOException, UnsupportedAudioFileException {
         return this.readRawWav(this.audioFile);
     }
 
-    public byte[] echo(int delayInMiSec, double decay, byte[] rawWav) {
-        int sampleDelay = (int) 44.100 * delayInMiSec * 2;
-        for (int i = 0; i < rawWav.length - sampleDelay; i++) {
-            rawWav[i + sampleDelay] += (byte) ((float) rawWav[i] * decay);
-        }
-        return rawWav;
+    public void write(String outputFilePath, byte[] rawWave, AudioFormat audioFormat) throws IOException {
+        File outputFile = new File(outputFilePath);
+        int byteLength = rawWave.length;
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(rawWave);
+        AudioInputStream out = new AudioInputStream(byteStream, audioFormat, byteLength * 2 + 1);
+        AudioSystem.write(out, AudioFileFormat.Type.WAVE, outputFile);
+        out.close();
+        byteStream.close();
+    }
+
+    public void write(String outputFilePath) throws IOException, UnsupportedAudioFileException {
+        byte[] rawWave = this.readRawWav();
+        AudioFormat audioFormat = AudioSystem.getAudioFileFormat(this.audioFile.toURI().toURL()).getFormat();
+        this.write(outputFilePath, rawWave, audioFormat);
+    }
+
+    public void write(String outputFilePath, AudioInputStream audioStream) throws IOException {
+        byte[] rawWave = this.readRawWav(audioStream);
+        AudioFormat audioFormat = audioStream.getFormat();
+        this.write(outputFilePath, rawWave, audioFormat);
     }
 
 }
