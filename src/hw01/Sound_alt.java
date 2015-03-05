@@ -44,6 +44,12 @@ public class Sound_alt {
         WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
         //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
 
+        short[] generated = genTone.gennToneSin(440, 1, 3);
+//        for (short x : generated) {
+//            System.out.println(x);
+//        }
+        WaveManager.write("./src/hw01/testTone.wav", ShortBuffer.wrap(generated), WaveManager.getformat(file));
+
     }
 
     private Mixer mixer;
