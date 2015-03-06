@@ -38,10 +38,16 @@ public class SoundModification {
 
             buffer[i + sampleDelay] += buffer[i] * decay;
         }
-
+        //byte[] outAudio = new byte[buffer.length * 2];
+        //return ByteBuffer.wrap(outAudio).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(buffer);
         return ShortBuffer.wrap(buffer);
     }
 
+//    public static ShortBuffer reverberation(ShortBuffer rawWav) {
+//        ShortBuffer raw1 = SoundModification.echo(120, 0.3, rawWav);
+//        ShortBuffer raw2 = SoundModification.echo(30, 0.6, rawWav);
+//        return SoundModification.addTwoWave(raw1, raw2);
+//    }
     public static ShortBuffer reverberation(ShortBuffer rawWav) {
         ShortBuffer raw2 = SoundModification.echo(2, 0.05, rawWav);
         for (int i = 0; i < 10; i++) {
