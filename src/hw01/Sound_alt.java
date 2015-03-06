@@ -52,6 +52,7 @@ public class Sound_alt {
 //        }
         //WaveManager.write("./src/hw01/testTone.wav", ShortBuffer.wrap(generated), WaveManager.getformat(file));
 
+        AudioSystem.getAudioFileFormat(file).getFormat().getFrameRate();
     }
 
     private Mixer mixer;
