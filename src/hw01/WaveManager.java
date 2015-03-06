@@ -114,7 +114,7 @@ public class WaveManager {
         short buf = 0;
         short[] buffer = new short[a.limit()];
         for (int i = 0; i < buffer.length; i++) {
-            buffer[i] = a.get(i);
+            buffer[i] = (a.get(i));
         }
         return buffer;
     }

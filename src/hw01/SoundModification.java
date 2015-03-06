@@ -30,18 +30,16 @@ public class SoundModification {
     }
 
     public static ShortBuffer echo(int delayInMiSec, double decay, ShortBuffer rawWav) {
-        int sampleDelay = (int) 44.100 * delayInMiSec;
+        int sampleDelay = (int) (44.100 * (float) delayInMiSec);
         short buf = 0;
-        short buffer[] = WaveManager.generateaDuplicate(rawWav);
-        int limit = WaveManager.findlimit(rawWav);
-        for (int i = 0; i < rawWav.limit() - sampleDelay; i++) {
-            buf = rawWav.get(i + sampleDelay);
-            buf += (short) ((float) rawWav.get(i) * decay);
-            if (buf >= limit) {
-                buf = (short) limit;
-            }
-            buffer[i + sampleDelay] = buf;
+        ShortBuffer raw = SoundModification.SetVolumn(-0.5, rawWav);
+        short buffer[] = WaveManager.generateaDuplicate(raw);
+        for (int i = 0; i < buffer.length - sampleDelay; i++) {
+
+            buffer[i + sampleDelay] += buffer[i] * decay;
         }
+        //byte[] outAudio = new byte[buffer.length * 2];
+        //return ByteBuffer.wrap(outAudio).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(buffer);
         return ShortBuffer.wrap(buffer);
     }
 

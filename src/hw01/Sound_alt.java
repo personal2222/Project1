@@ -37,11 +37,11 @@ public class Sound_alt {
         //WaveManager.play(WaveManager.readInput(file));
         ShortBuffer rawdata = WaveManager.readRawWav(file);
         WaveManager.write("./src/hw01/copypaster.wav", WaveManager.readInput(file));
-        // WaveManager.play(WaveManager.readInput("./src/hw01/copypaster.wav"));
-        WaveManager.write("./src/hw01/testEcho.wav", SoundModification.echo(100, 0.3, rawdata), WaveManager.getformat(file));
+        //WaveManager.play(WaveManager.readInput("./src/hw01/copypaster.wav"));
+        WaveManager.write("./src/hw01/testEcho.wav", SoundModification.echo(500, 0.6, rawdata), WaveManager.getformat(file));
         //WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
         WaveManager.write("./src/hw01/testVolumn.wav", SoundModification.SetVolumn(-0.9, rawdata), WaveManager.getformat(file));
-        //WaveManager.play(WaveManager.readInput("./src/hw01/testVolumn.wav"));
+        WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
         //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
 
     }
