@@ -120,17 +120,20 @@ public class WaveManager {
         return buffer;
     }
 
-    public static AudioInputStream downsamplingafile(AudioInputStream a) {
+    public static void writeaDownsampled(File f) throws IOException, UnsupportedAudioFileException {
+        ShortBuffer raw = WaveManager.readRawWav(f);
+        AudioFormat srcformat = WaveManager.getformat(f);
+        ShortBuffer downsam = SoundModification.downsamplethefilebythree(raw);
         AudioFormat targeted = new AudioFormat(
-                a.getFormat().getEncoding(),
-                8000,
-                a.getFormat().getSampleSizeInBits(),
-                a.getFormat().getChannels(),
-                a.getFormat().getFrameSize(),
-                (float) 8000,
-                a.getFormat().isBigEndian()
+                srcformat.getEncoding(),
+                (int) (srcformat.getSampleRate() / 3),
+                srcformat.getSampleSizeInBits(),
+                srcformat.getChannels(),
+                srcformat.getFrameSize() / 3,
+                srcformat.getFrameRate(),
+                srcformat.isBigEndian()
         );
-        return AudioSystem.getAudioInputStream(targeted, a);
+        WaveManager.write("./src/hw01/testdownsample.wav", downsam, targeted);
 
     }
 

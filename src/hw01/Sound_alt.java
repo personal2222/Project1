@@ -8,7 +8,9 @@ package hw01;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
@@ -45,14 +47,24 @@ public class Sound_alt {
         WaveManager.write("./src/hw01/Reverberation.wav", SoundModification.reverberation(rawdata), WaveManager.getformat(file));
         //WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
         //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
-        WaveManager.write("./src/hw01/testdownsample.wav", WaveManager.downsamplingafile(WaveManager.readInput(file)));
-        short[] generated = genTone.gennToneSin(440, 1, 3);
+        WaveManager.writeaDownsampled(file);
+        byte[] generated = genTone.gennToneSin(200, 1, 3);
 //        for (short x : generated) {
 //            System.out.println(x);
 //        }
-        //WaveManager.write("./src/hw01/testTone.wav", ShortBuffer.wrap(generated), WaveManager.getformat(file));
+        AudioFormat srcformat = AudioSystem.getAudioFileFormat(file).getFormat();
+        AudioFormat targeted = new AudioFormat(
+                srcformat.getEncoding(),
+                (int) (srcformat.getSampleRate()),
+                srcformat.getSampleSizeInBits(),
+                1,
+                srcformat.getFrameSize(),
+                srcformat.getFrameRate(),
+                srcformat.isBigEndian()
+        );
+        WaveManager.write("./src/hw01/testTone.wav", ByteBuffer.wrap(generated).asShortBuffer(), targeted);
 
-        AudioSystem.getAudioFileFormat(file).getFormat().getFrameRate();
+        //AudioSystem.getAudioFileFormat(file).getFormat().getFrameRate();
     }
 
     private Mixer mixer;

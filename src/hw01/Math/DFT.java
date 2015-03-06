@@ -17,6 +17,7 @@ package hw01.Math;
 
 import hw01.WaveManager;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
@@ -45,10 +46,15 @@ public class DFT {
         waveRepr2 = Arrays.copyOfRange(waveRepr, 0, subArray);
         System.out.println("Start Transform");
         Complex[] result = DFT.fft(waveRepr2);
-        for (Complex x : result) {
-            System.out.println(x.magnitude());
-        }
+//        for (Complex x : result) {
+//            System.out.println(x.magnitude());
+//        }
         System.out.println("End Transform");
+        FileWriter fw = new FileWriter("./test.csv");
+        for (Complex x : result){
+            fw.write(x.getReal() + "\n");
+        }
+        
 
     }
 

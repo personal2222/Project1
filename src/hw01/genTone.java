@@ -57,14 +57,14 @@ public class genTone {
         return generatedWave;
     }
 
-    public static short[] gennToneSin(int freq, double amplitude, double duration) {
-        freq = freq / 2;
+    public static byte[] gennToneSin(int freq, double amplitude, double duration) {
+        //freq = freq / 2;
 
         int totSlot = (int) (duration * genTone.stdFreq);
-        short actualAmplitude = (short) (amplitude * Short.MAX_VALUE / 2);
-        short[] generatedWave = new short[totSlot];
+        byte actualAmplitude = (byte) (amplitude * Byte.MAX_VALUE / 2);
+        byte[] generatedWave = new byte[totSlot];
         for (int i = 0; i < (generatedWave.length); ++i) {
-            generatedWave[i] = (short) (actualAmplitude * Math.sin(2 * Math.PI * freq * i / genTone.stdFreq));
+            generatedWave[i] = (byte) (actualAmplitude * Math.sin(2 * Math.PI * freq * i / genTone.stdFreq));
         }
         return generatedWave;
     }

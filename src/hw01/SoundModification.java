@@ -71,4 +71,16 @@ public class SoundModification {
         return ShortBuffer.wrap(buffer1);
     }
 
+    public static ShortBuffer downsamplethefilebythree(ShortBuffer raw1) {
+        short buffer[] = WaveManager.generateaDuplicate(raw1);
+        short buffer2[] = new short[buffer.length / 3];
+        for (int i = 0; i < (buffer.length - 2); i++) {
+            if (i % 3 == 0) {
+                buffer2[i / 3] = buffer[i];
+            }
+
+        }
+        return ShortBuffer.wrap(buffer2);
+    }
+
 }
