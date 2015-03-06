@@ -26,7 +26,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class Sound_alt {
 
     public static void main(String[] args) throws LineUnavailableException, UnsupportedAudioFileException, IOException, MalformedURLException, InterruptedException {
-        File file = new File("./src/hw01/sampletest.wav");
+        File file = new File("./src/hw01/drum.wav");
         Sound_alt sound = new Sound_alt(file);
 //        byte[] rawdata = sound.readRawWav(file);
 //        sound.write("./src/hw01/copypaster.wav", sound.readInput(file));
@@ -43,7 +43,7 @@ public class Sound_alt {
         WaveManager.write("./src/hw01/testVolumn.wav", SoundModification.SetVolumn(-0.9, rawdata), WaveManager.getformat(file));
         //WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
         WaveManager.write("./src/hw01/Reverberation.wav", SoundModification.reverberation(rawdata), WaveManager.getformat(file));
-        //WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
+        WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
         //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
         WaveManager.writeaDownsampled(file);
         short[] generated = genTone.gennToneSin(440, 1, 3);
