@@ -45,7 +45,7 @@ public class Sound_alt {
         WaveManager.write("./src/hw01/Reverberation.wav", SoundModification.reverberation(rawdata), WaveManager.getformat(file));
         //WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
         //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
-
+        WaveManager.write("./src/hw01/testdownsample.wav", WaveManager.downsamplingafile(WaveManager.readInput(file)));
         short[] generated = genTone.gennToneSin(440, 1, 3);
 //        for (short x : generated) {
 //            System.out.println(x);

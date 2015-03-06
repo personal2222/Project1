@@ -115,8 +115,23 @@ public class WaveManager {
         short[] buffer = new short[a.limit()];
         for (int i = 0; i < buffer.length; i++) {
             buffer[i] = (a.get(i));
+
         }
         return buffer;
+    }
+
+    public static AudioInputStream downsamplingafile(AudioInputStream a) {
+        AudioFormat targeted = new AudioFormat(
+                a.getFormat().getEncoding(),
+                8000,
+                a.getFormat().getSampleSizeInBits(),
+                a.getFormat().getChannels(),
+                a.getFormat().getFrameSize(),
+                (float) 8000,
+                a.getFormat().isBigEndian()
+        );
+        return AudioSystem.getAudioInputStream(targeted, a);
+
     }
 
 }

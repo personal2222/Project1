@@ -51,7 +51,6 @@ public class SoundModification {
     public static ShortBuffer reverberation(ShortBuffer rawWav) {
         ShortBuffer raw2 = SoundModification.echo(2, 0.05, rawWav);
         for (int i = 0; i < 5; i++) {
-
             ShortBuffer raw1 = SoundModification.echo((int) (i * 0.7), i * 0.2, rawWav);
             raw1 = SoundModification.SetVolumn(-0.5, raw1);
             raw2 = SoundModification.SetVolumn(-0.5, raw2);
