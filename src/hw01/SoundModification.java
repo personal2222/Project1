@@ -50,8 +50,14 @@ public class SoundModification {
 //    }
     public static ShortBuffer reverberation(ShortBuffer rawWav) {
         ShortBuffer raw2 = SoundModification.echo(2, 0.05, rawWav);
+        for (int i = 0; i < 10; i++) {
+            ShortBuffer raw1 = SoundModification.echo((int) (i * 30), 0.6, rawWav);
+            raw1 = SoundModification.SetVolumn(-0.5, raw1);
+            raw2 = SoundModification.SetVolumn(-0.5, raw2);
+            raw2 = SoundModification.addTwoWave(raw1, raw2);
+        }
         for (int i = 0; i < 5; i++) {
-            ShortBuffer raw1 = SoundModification.echo((int) (i * 0.7), i * 0.2, rawWav);
+            ShortBuffer raw1 = SoundModification.echo((int) (i * 50), i * 0.2, rawWav);
             raw1 = SoundModification.SetVolumn(-0.5, raw1);
             raw2 = SoundModification.SetVolumn(-0.5, raw2);
             raw2 = SoundModification.addTwoWave(raw1, raw2);
