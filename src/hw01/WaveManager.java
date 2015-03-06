@@ -28,9 +28,9 @@ public class WaveManager {
 
     public static void write(String outputFilePath, ShortBuffer rawWave, AudioFormat audioFormat) throws IOException {
         File outputFile = new File(outputFilePath);
-        short[] buf = new short[rawWave.remaining()];
+        short[] buf = new short[rawWave.limit()];
         rawWave.get(buf);
-        int byteLength = rawWave.limit() * 2;
+        int byteLength = buf.length * 2;
         byte[] in = new byte[byteLength];
         ByteBuffer.wrap(in).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(buf);
         ByteArrayInputStream byteStream = new ByteArrayInputStream(in);
@@ -43,7 +43,7 @@ public class WaveManager {
     public static void write(String outputFilePath, AudioInputStream audioStream) throws IOException {
         File outputFile = new File(outputFilePath);
         ShortBuffer rawWave = WaveManager.readRawWav(audioStream);
-        short[] buf = new short[rawWave.remaining()];
+        short[] buf = new short[rawWave.limit()];
         rawWave.get(buf);
         int byteLength = buf.length * 2;
         AudioFormat audioFormat = audioStream.getFormat();
@@ -58,7 +58,7 @@ public class WaveManager {
 
     public static ShortBuffer readRawWav(AudioInputStream audioStream) throws IOException {
         byte[] rawWave;
-        int byteLength = (int) audioStream.getFrameLength() * 4 + 1;
+        int byteLength = (int) audioStream.getFrameLength() * 4;
         rawWave = new byte[byteLength];
         audioStream.read(rawWave);
         ByteBuffer a = ByteBuffer.wrap(rawWave);
