@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
-import java.nio.ShortBuffer;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -29,49 +28,52 @@ public class Sound_alt {
 
     public static void main(String[] args) throws LineUnavailableException, UnsupportedAudioFileException, IOException, MalformedURLException, InterruptedException {
         File file = new File("./src/hw01/sampletest.wav");
-        Sound_alt sound = new Sound_alt(file);
-        Sound test = SoundIO.read("./src/hw01/sampletest.wav");
-        SoundIO.write(test.downSamplebytwo(), "./src/hw01/te.wav");
-        SoundIO.write(test, "./src/hw01/tes.wav");
-        SoundIO.write(test.echo(500, 0.6), "./src/hw01/testEcho.wav");
-        SoundIO.write(test.Reverberation(), "./src/hw01/Reverberation.wav");
-
-//        byte[] rawdata = sound.readRawWav(file);
-//        sound.write("./src/hw01/copypaster.wav", sound.readInput(file));
+//        Sound_alt sound = new Sound_alt(file);
+//        Sound test = SoundIO.read("./src/hw01/sampletest.wav");
+//        SoundIO.write(test.downSamplebytwo(), "./src/hw01/te.wav");
+//        SoundIO.write(test, "./src/hw01/tes.wav");
+//        SoundIO.write(test.echo(500, 0.6), "./src/hw01/testEcho.wav");
+//        SoundIO.write(test.Reverberation(), "./src/hw01/Reverberation.wav");
 //
-//        AudioFormat audioFormat = AudioSystem.getAudioFileFormat(file.toURI().toURL()).getFormat();
-//        sound.write("./src/hw01/testEcho.wav", sound.echo(100, 1.0, rawdata), audioFormat);
+////        byte[] rawdata = sound.readRawWav(file);
+////        sound.write("./src/hw01/copypaster.wav", sound.readInput(file));
+////
+////        AudioFormat audioFormat = AudioSystem.getAudioFileFormat(file.toURI().toURL()).getFormat();
+////        sound.write("./src/hw01/testEcho.wav", sound.echo(100, 1.0, rawdata), audioFormat);
+////        //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
+//        //WaveManager.play(WaveManager.readInput(file));
+//        ShortBuffer rawdata = WaveManager.readRawWav(file);
+//        WaveManager.write("./src/hw01/copypaster.wav", WaveManager.readInput(file));
+//        //WaveManager.play(WaveManager.readInput("./src/hw01/copypaster.wav"));
+//        // WaveManager.write("./src/hw01/testEcho.wav", SoundModification.echo(500, 0.6, rawdata), WaveManager.getformat(file));
+//        //WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
+//        //WaveManager.write("./src/hw01/testVolumn.wav", SoundModification.SetVolumn(-0.9, rawdata), WaveManager.getformat(file));
+//        //WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
+//        WaveManager.write("./src/hw01/Reverberation.wav", SoundModification.reverberation(rawdata), WaveManager.getformat(file));
+//        //WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
+//        // WaveManager.write("./src/hw01/Reverberation.wav", SoundModification.reverberation(rawdata), WaveManager.getformat(file));
+//        // WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
 //        //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
-        //WaveManager.play(WaveManager.readInput(file));
-        ShortBuffer rawdata = WaveManager.readRawWav(file);
-        WaveManager.write("./src/hw01/copypaster.wav", WaveManager.readInput(file));
-        //WaveManager.play(WaveManager.readInput("./src/hw01/copypaster.wav"));
-        // WaveManager.write("./src/hw01/testEcho.wav", SoundModification.echo(500, 0.6, rawdata), WaveManager.getformat(file));
-        //WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
-        //WaveManager.write("./src/hw01/testVolumn.wav", SoundModification.SetVolumn(-0.9, rawdata), WaveManager.getformat(file));
-        //WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
-        WaveManager.write("./src/hw01/Reverberation.wav", SoundModification.reverberation(rawdata), WaveManager.getformat(file));
-        //WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
-        // WaveManager.write("./src/hw01/Reverberation.wav", SoundModification.reverberation(rawdata), WaveManager.getformat(file));
-        // WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
-        //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
-        // WaveManager.writeaDownsampled(file);
+//        // WaveManager.writeaDownsampled(file);
 
-        byte[] generated = genTone.gennToneSin(400, 1, 0.01);
+        byte[] generated = genTone.generatePureTone(400, 1, 3, genTone.ToneType.SAWTOOTH);
 
 //        for (short x : generated) {
 //            System.out.println(x);
 //        }
         AudioFormat srcformat = AudioSystem.getAudioFileFormat(file).getFormat();
         AudioFormat targeted = new AudioFormat(
-                srcformat.getEncoding(),
-                (int) (srcformat.getSampleRate()),
+                AudioFormat.Encoding.PCM_SIGNED,
+                44100,
                 8,
                 1,
-                srcformat.getFrameSize(),
-                srcformat.getFrameRate(),
-                srcformat.isBigEndian()
+                4,
+                (float) 44100.0,
+                false
         );
+        System.out.println(srcformat.getEncoding());
+        System.out.println(srcformat.getFrameRate());
+        System.out.println(srcformat.isBigEndian());
 
         WaveManager.write("./src/hw01/testTone.wav", ByteBuffer.wrap(generated).asShortBuffer(), targeted);
 
