@@ -125,20 +125,41 @@ public class Sound {
 
             buffer[i] = (short) (buffer[i] * ratio);
         }
-        return new Sound(ShortBuffer.wrap(buffer), this.af);
+
+        Sound rtn = new Sound(ShortBuffer.wrap(buffer), this.af);
+        if (rtn.getMaxVolume() >= Short.MAX_VALUE) {
+            return this;
+        } else {
+            return rtn;
+        }
+    }
+
+    public void SetthisVolumn(double set) throws UnsupportedAudioFileException, IOException {
+        Sound temp = this.SetVolumn(set);
+        this.s = temp.s;
     }
 
     public Sound Reverberation() throws UnsupportedAudioFileException, IOException {
         Sound raw2 = this;
         Sound raw1 = this;
 
-        raw2.addSound(raw1.echo(600, 0.03));
-        raw2.addSound(raw1.echo(500, 0.05));
-        raw2.addSound(raw1.echo(400, 0.10));
-        raw2.addSound(raw1.echo(200, 0.15));
+        raw2.addSound(raw1.echo(700, 0.03));
+        raw2.addSound(raw1.echo(600, 0.05));
+        raw2.addSound(raw1.echo(500, 0.10));
+        raw2.addSound(raw1.echo(400, 0.15));
         raw2.addSound(raw1.echo(300, 0.20));
         raw2.addSound(raw1.echo(200, 0.25));
         raw2.addSound(raw1.echo(100, 0.30));
+        raw2.addSound(raw1.echo(750, 0.01));
+        raw2.addSound(raw1.echo(650, 0.03));
+        raw2.addSound(raw1.echo(550, 0.07));
+        raw2.addSound(raw1.echo(450, 0.12));
+        raw2.addSound(raw1.echo(350, 0.17));
+        raw2.addSound(raw1.echo(250, 0.23));
+        raw2.addSound(raw1.echo(150, 0.27));
+//        for (int i = 0; i < 40; i++) {
+//            raw2.addSound(raw1.echo(100 + i * 23, 0.1 - i * 0.002));
+//        }
 
         return raw2;
     }

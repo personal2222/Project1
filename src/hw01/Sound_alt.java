@@ -30,7 +30,7 @@ public class Sound_alt {
     public static void main(String[] args) throws LineUnavailableException, UnsupportedAudioFileException, IOException, MalformedURLException, InterruptedException {
         File file = new File("./src/hw01/sampletest.wav");
         Sound_alt sound = new Sound_alt(file);
-        Sound test = SoundIO.read("./src/hw01/drum.wav");
+        Sound test = SoundIO.read("./src/hw01/sampletest.wav");
         SoundIO.write(test.downSamplebytwo(), "./src/hw01/te.wav");
         SoundIO.write(test, "./src/hw01/tes.wav");
         SoundIO.write(test.echo(500, 0.6), "./src/hw01/testEcho.wav");
