@@ -5,6 +5,12 @@
  */
 package hw01;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import javax.sound.sampled.AudioFormat;
+import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 /**
  *
  * @author Ruby
@@ -17,6 +23,15 @@ public class genTone {
     }
 
     private static final double stdFreq = 44100;
+    private static final AudioFormat toneformat = new AudioFormat(
+            PCM_SIGNED,
+            44100,
+            8,
+            1,
+            4,
+            44100,
+            false
+    );
 
     public static byte[] generatePureTone(double freq, double amplitude, double duration, ToneType toneType) {
         if (toneType == ToneType.SINE) {
@@ -72,5 +87,11 @@ public class genTone {
             generatedWave[i] = (byte) (actualAmplitude * Math.sin(2 * Math.PI * freq * i / genTone.stdFreq));
         }
         return generatedWave;
+    }
+
+    private static Sound translateToSound(byte[] a) throws UnsupportedAudioFileException, IOException {
+
+        ByteBuffer buffer = ByteBuffer.wrap(a);
+        return new Sound(buffer.asShortBuffer(), toneformat);
     }
 }

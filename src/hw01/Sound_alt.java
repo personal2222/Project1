@@ -8,7 +8,6 @@ package hw01;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -57,8 +56,7 @@ public class Sound_alt {
         //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
         // WaveManager.writeaDownsampled(file);
 
-        byte[] generated = genTone.gennToneSin(400, 1, 0.01);
-
+        //byte[] generated = genTone.gennToneSin(400, 1, 0.01);
 //        for (short x : generated) {
 //            System.out.println(x);
 //        }
@@ -72,9 +70,12 @@ public class Sound_alt {
                 srcformat.getFrameRate(),
                 srcformat.isBigEndian()
         );
+        System.out.println(srcformat.getEncoding());
+        System.out.println(srcformat.getFrameSize());
+        System.out.println(srcformat.getFrameRate());
+        System.out.println(srcformat.getSampleRate());
 
-        WaveManager.write("./src/hw01/testTone.wav", ByteBuffer.wrap(generated).asShortBuffer(), targeted);
-
+        //WaveManager.write("./src/hw01/testTone.wav", ByteBuffer.wrap(generated).asShortBuffer(), targeted);
         //AudioSystem.getAudioFileFormat(file).getFormat().getFrameRate();
     }
 
