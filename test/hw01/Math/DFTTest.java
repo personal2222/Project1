@@ -75,4 +75,13 @@ public class DFTTest {
         assertArrayEquals(expResult, result);
     }
 
+    @Test(expected = LengthNotAPowerOfTwoException.class)
+    public void lengthExceptionTest() throws LengthNotAPowerOfTwoException {
+        Complex[] series = new Complex[3];
+        series[0] = new Complex(0, 0);
+        series[1] = new Complex(0, 0);
+        series[2] = new Complex(0, 0);
+        DFT.FTransform(series);
+    }
+
 }

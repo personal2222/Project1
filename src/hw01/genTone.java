@@ -13,23 +13,29 @@ public class genTone {
 
     enum ToneType {
 
-        SINE, SQUARE, TRIANGLE, SAWTOOTH
+        SINE, SQUARE, SAWTOOTH
     }
 
     private static final double stdFreq = 44100;
 
-//    public static short[] generatePureTone(double freq, double amplitude, double duration, ToneType toneType) {
-//
-//    }
-    public static short[] gennToneSquare(int freq, double amplitude, double duration) {
-        freq = freq / 2;
+    public static byte[] generatePureTone(double freq, double amplitude, double duration, ToneType toneType) {
+        if (toneType == ToneType.SINE) {
+            return gennToneSin(freq, amplitude, duration);
+        } else if (toneType == ToneType.SAWTOOTH) {
+            return gennToneSaw(freq, amplitude, duration);
+        } else {
+            return gennToneSquare(freq, amplitude, duration);
+        }
+    }
+
+    private static byte[] gennToneSquare(double freq, double amplitude, double duration) {
         int totSlot = (int) (duration * genTone.stdFreq);
         int slotsPerWave = (int) (genTone.stdFreq / freq);
-        short actualAmplitude = (short) (amplitude * Short.MAX_VALUE / 2);
-        short[] generatedWave = new short[totSlot];
+        byte actualAmplitude = (byte) (amplitude * Byte.MAX_VALUE / 2);
+        byte[] generatedWave = new byte[totSlot];
         for (int i = 0; i < (generatedWave.length); ++i) {
             if ((i % slotsPerWave) < (slotsPerWave / (2.0))) {
-                generatedWave[i] = (short) (-actualAmplitude);
+                generatedWave[i] = (byte) (-actualAmplitude);
             } else {
                 generatedWave[i] = actualAmplitude;
             }
@@ -37,27 +43,26 @@ public class genTone {
         return generatedWave;
     }
 
-    public static short[] gennToneSaw(int freq, double amplitude, double duration) {
-        freq = freq / 2;
+    private static byte[] gennToneSaw(double freq, double amplitude, double duration) {
         int totSlot = (int) (duration * genTone.stdFreq);
         int slotsPerWave = (int) (genTone.stdFreq / freq);
         int halfWave = slotsPerWave / 2;
-        short actualAmplitude = (short) (amplitude * Short.MAX_VALUE / 2);
-        short ampIncreasePerSlot = (short) (2 * actualAmplitude / halfWave);
-        short[] generatedWave = new short[totSlot];
+        byte actualAmplitude = (byte) (amplitude * Byte.MAX_VALUE / 2);
+        byte ampIncreasePerSlot = (byte) (2 * actualAmplitude / halfWave);
+        byte[] generatedWave = new byte[totSlot];
         for (int i = 0; i < (generatedWave.length); ++i) {
             int indexInHalfWave = i % halfWave;
             int indexOfHalfWave = i / halfWave;
             if (((indexInHalfWave) < (halfWave / (2.0))) && indexOfHalfWave % 2 == 0) {
-                generatedWave[i] = (short) (-actualAmplitude + indexInHalfWave * ampIncreasePerSlot);
+                generatedWave[i] = (byte) (-actualAmplitude + indexInHalfWave * ampIncreasePerSlot);
             } else {
-                generatedWave[i] = (short) (actualAmplitude - indexInHalfWave * ampIncreasePerSlot);
+                generatedWave[i] = (byte) (actualAmplitude - indexInHalfWave * ampIncreasePerSlot);
             }
         }
         return generatedWave;
     }
 
-    public static byte[] gennToneSin(int freq, double amplitude, double duration) {
+    private static byte[] gennToneSin(double freq, double amplitude, double duration) {
         //freq = freq / 2;
 
         int totSlot = (int) (duration * genTone.stdFreq);
