@@ -15,14 +15,6 @@
  */
 package hw01.Math;
 
-import hw01.WaveManager;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.ShortBuffer;
-import java.util.Arrays;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 /**
  *
  * @author Zhengri Fan
@@ -32,39 +24,60 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class DFT {
 
-    public static void main(String args[]) throws IOException, UnsupportedAudioFileException {
-        ShortBuffer rawWave = hw01.WaveManager.readRawWav(new File("./src/hw01/400.wav"));
-        short[] shortWave = WaveManager.generateaDuplicate(rawWave);
-        Complex[] waveRepr = new Complex[shortWave.length];
-
-        for (int i = 0; i < waveRepr.length; ++i) {
-            waveRepr[i] = new Complex(i / 44100, shortWave[i]);
-        }
-        double log_2 = Math.log(shortWave.length) / Math.log(2);
-        int subArray = (int) Math.pow(2, (int) log_2);
-        Complex[] waveRepr2 = new Complex[subArray];
-        waveRepr2 = Arrays.copyOfRange(waveRepr, 0, subArray);
-        System.out.println("Start Transform");
-        Complex[] result = DFT.fft(waveRepr2);
-//        for (Complex x : result) {
-//            System.out.println(x.magnitude());
+//    public static void main(String args[]) throws IOException, UnsupportedAudioFileException, LengthNotAPowerOfTwoException {
+//        File file = new File("./src/hw01/400.wav");
+//        System.out.println(AudioSystem.getAudioFileFormat(file).getFormat().getSampleSizeInBits());
+//        ShortBuffer rawWave = hw01.WaveManager.readRawWav(new File("./src/hw01/drum.wav"));
+//        short[] shortWave = WaveManager.generateaDuplicate(rawWave);
+//        Complex[] waveRepr = new Complex[shortWave.length];
+//        System.out.println("Read Wave");
+//        for (int i = 0; i < waveRepr.length; ++i) {
+////            Complex element = new Complex(0, i * i / 44100);
+////            element = element.exp();
+////            waveRepr[i] = element.mul(shortWave[i]);
+//            waveRepr[i] = new Complex(shortWave[i] / 1024, 0);
 //        }
-        System.out.println("End Transform");
-        FileWriter fw = new FileWriter("./test.csv");
-        for (Complex x : result){
-            fw.write(x.getReal() + "\n");
+//        Complex[] waveRepr2 = DFT.extendArrayToPowOfTwo(waveRepr);
+//        //System.out.print(waveRepr2.length);
+//        System.out.println("Start Transform");
+//        Complex[] result = DFT.FTransform(waveRepr2);
+//        System.out.println("End Transform");
+//        FileWriter fw = new FileWriter("./test.csv");
+//        for (Complex x : result) {
+//            fw.write(x.magnitude() + "\n");
+//        }
+//
+//    }
+    /**
+     *
+     * @param rawSound
+     * @return
+     * @throws LengthNotAPowerOfTwoException
+     */
+    public static Complex[] SoundDFT(short[] rawSound) throws LengthNotAPowerOfTwoException {
+        Complex[] waveRepr = new Complex[rawSound.length];
+        System.out.println("Read Wave");
+        for (int i = 0; i < waveRepr.length; ++i) {
+            waveRepr[i] = new Complex(rawSound[i] / 1024, 0);
         }
-        
-
+        waveRepr = DFT.extendArrayToPowOfTwo(waveRepr);
+        Complex[] result = DFT.FTransform(waveRepr);
+        return result;
     }
 
+    /**
+     * This is the original DFT; it directly implements the definition of DFT
+     *
+     * @param series
+     * @return
+     */
     public static Complex[] Transform(Complex[] series) {
         int inputLength = series.length;
         Complex[] k_array = new Complex[inputLength];
         for (int k = 0; k < inputLength; ++k) {
             Complex sum = new Complex(0, 0);
             for (int t = 0; t < inputLength; ++t) {
-                sum = sum.add(exponent(t, k, inputLength).exp().mul(series[t]));
+                sum = sum.add(DFT.exponent(t, k, inputLength).exp().mul(series[t]));
             }
             k_array[k] = sum;
         }
@@ -72,106 +85,128 @@ public class DFT {
     }
 
     /**
-     * http://stackoverflow.com/questions/3305059/how-do-you-calculate-log-base-2-in-java-for-integers
      *
+     * This program implements the Fast Fourier Transform with the sample code
+     * mentioned below:
+     *
+     *
+     * @see http://bbs.csdn.net/topics/390785412
+     *
+     * Assumes that the array is of length of power of 2
      * @param series
      * @return
      */
-    public static Complex[] FTransform(Complex[] series) {
-//        double EPISILON = 1E-10;
+    public static Complex[] FTransform(Complex[] series) throws LengthNotAPowerOfTwoException {
         int inputLength = series.length;
-//        double log_2 = Math.log(inputLength) / Math.log(2);
-//        if (log_2 - (int) log_2 > EPISILON) {
-//            System.out.print(log_2 - (int) log_2);
-//            return null;
+        if (inputLength == 1) {
+            return series;
+        } else if (inputLength % 2 != 0) {
+            throw new LengthNotAPowerOfTwoException("Array length is not a power of 2");
+        }
+        Complex[] even = new Complex[inputLength / 2];
+        Complex[] odd = new Complex[inputLength / 2];
+        for (int i = 0; i < inputLength / 2; ++i) {
+            even[i] = series[2 * i];
+            odd[i] = series[2 * i + 1];
+        }
+        Complex[] evenResult = DFT.FTransform(even);
+        Complex[] oddResult = DFT.FTransform(odd);
+
+        Complex[] result = new Complex[inputLength];
+
+        for (int i = 0; i < inputLength / 2; ++i) {
+            Complex factor = DFT.exponent(1, i, inputLength).exp();
+            result[i] = evenResult[i].add(factor.mul(oddResult[i]));
+            result[i + inputLength / 2] = evenResult[i].sub(factor.mul(oddResult[i]));
+        }
+        return result;
+    }
+
+//    /**
+//     * http://bbs.csdn.net/topics/390785412
+//     *
+//     * @param x
+//     * @return
+//     */
+//    public static Complex[] fft(Complex[] x) {
+//        int N = x.length;
+//
+//        // base case
+//        if (N == 1) {
+//            return new Complex[]{x[0]};
 //        }
-        Complex[] k_array = new Complex[inputLength];
-        for (int k = 0; k < inputLength; ++k) {
-            k_array[k] = DFT.fastTransform(series, k);
+//
+//        // radix 2 Cooley-Tukey FFT
+//        if (N % 2 != 0) {
+//            throw new RuntimeException("N is not a power of 2");
+//        }
+//
+//        // fft of even terms
+//        Complex[] even = new Complex[N / 2];
+//        for (int k = 0; k < N / 2; k++) {
+//            even[k] = x[2 * k];
+//        }
+//        Complex[] q = DFT.fft(even);
+//
+//        // fft of odd terms
+//        Complex[] odd = even;  // reuse the array
+//        for (int k = 0; k < N / 2; k++) {
+//            odd[k] = x[2 * k + 1];
+//        }
+//        Complex[] r = DFT.fft(odd);
+//
+//        // combine
+//        Complex[] y = new Complex[N];
+//        for (int k = 0; k < N / 2; k++) {
+//            double kth = -2 * k * Math.PI / N;
+//            Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
+//            y[k] = q[k].add(wk.mul(r[k]));
+//            y[k + N / 2] = q[k].sub(wk.mul(r[k]));
+//        }
+//        return y;
+//    }
+    private static Complex[] extendArrayToPowOfTwo(Complex[] inputArray) {
+        int arrayLength = inputArray.length;
+        int extraSlot = DFT.determineMissingSlots(arrayLength);
+        Complex[] result = new Complex[arrayLength + extraSlot];
+        for (int j = 0; j < arrayLength; ++j) {
+            result[j] = inputArray[j];
         }
-        return k_array;
+        for (int j = arrayLength; j < result.length; ++j) {
+            result[j] = new Complex(0, 0);
+        }
+        return result;
     }
 
-    public static Complex fastTransform(Complex[] series, int k) {
-        int arrayLength = series.length;
+    private static int determineMissingSlots(int arrayLength) {
+        int extraSlot = 0;
+        int i = 0;
         if (arrayLength == 1) {
-            return series[0];
-        } else if (arrayLength == 2) {
-            Complex result = series[0].mul(DFT.exponent(0, k, arrayLength / 2));
-            Complex right = series[1].mul(DFT.exponent(0, k, arrayLength / 2));
-            right.mul(DFT.exponent(1, k, arrayLength));
-            result.add(right);
-            return result;
-        } else {
-            Complex[] odd = new Complex[arrayLength / 2];
-            Complex[] even;
-            if (arrayLength % 2 == 0) {
-                even = new Complex[arrayLength / 2];
-            } else {
-                even = new Complex[arrayLength / 2 + 1];
+            return 1;
+        }
+        while (true) {
+            if (arrayLength == 1) {
+                break;
+            } else if (arrayLength % 2 == 1) {
+                extraSlot += Math.pow(2, i);
+                arrayLength += 1;
             }
-            for (int i = 0; i < arrayLength; ++i) {
-                if (i % 2 == 1) {
-                    odd[i / 2] = series[i];
-                } else {
-                    even[i / 2] = series[i];
-                }
-            }
-            Complex result = DFT.fastTransform(even, k);
-            Complex right = DFT.fastTransform(odd, k);
-            right.mul(DFT.exponent(1, k, arrayLength));
-            result.add(right);
-            return result;
+            arrayLength = arrayLength / 2;
+            i++;
         }
-
-    }
-
-    /**
-     * http://bbs.csdn.net/topics/390785412
-     *
-     * @param x
-     * @return
-     */
-    public static Complex[] fft(Complex[] x) {
-        int N = x.length;
-
-        // base case
-        if (N == 1) {
-            return new Complex[]{x[0]};
-        }
-
-        // radix 2 Cooley-Tukey FFT
-        if (N % 2 != 0) {
-            throw new RuntimeException("N is not a power of 2");
-        }
-
-        // fft of even terms
-        Complex[] even = new Complex[N / 2];
-        for (int k = 0; k < N / 2; k++) {
-            even[k] = x[2 * k];
-        }
-        Complex[] q = fft(even);
-
-        // fft of odd terms
-        Complex[] odd = even;  // reuse the array
-        for (int k = 0; k < N / 2; k++) {
-            odd[k] = x[2 * k + 1];
-        }
-        Complex[] r = fft(odd);
-
-        // combine
-        Complex[] y = new Complex[N];
-        for (int k = 0; k < N / 2; k++) {
-            double kth = -2 * k * Math.PI / N;
-            Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
-            y[k] = q[k].add(wk.mul(r[k]));
-            y[k + N / 2] = q[k].sub(wk.mul(r[k]));
-        }
-        return y;
+        return extraSlot;
     }
 
     private static Complex exponent(int t, int k, int n) {
         double imag = (-2 * Math.PI * t * k) / n;
         return new Complex(0, imag);
+    }
+
+}
+
+class LengthNotAPowerOfTwoException extends Exception {
+
+    public LengthNotAPowerOfTwoException(String errMsg) {
+        super(errMsg);
     }
 }

@@ -78,17 +78,6 @@ public class ComplexTest {
     }
 
     /**
-     * Test of negate method, of class Complex.
-     */
-    @Test
-    public void testConjugate() {
-        System.out.println("negate");
-        Complex expResult = new Complex(cpx.getReal(), -cpx.getImaginary());
-        Complex result = cpx.conjugate();
-        assertEquals(expResult, result);
-    }
-
-    /**
      * Test of mul method, of class Complex.
      */
     @Test

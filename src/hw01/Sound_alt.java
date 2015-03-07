@@ -45,11 +45,11 @@ public class Sound_alt {
         WaveManager.write("./src/hw01/testVolumn.wav", SoundModification.SetVolumn(-0.9, rawdata), WaveManager.getformat(file));
         //WaveManager.play(WaveManager.readInput("./src/hw01/testEcho.wav"));
         WaveManager.write("./src/hw01/Reverberation.wav", SoundModification.reverberation(rawdata), WaveManager.getformat(file));
-        WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
+        //WaveManager.play(WaveManager.readInput("./src/hw01/Reverberation.wav"));
         //sound.write("./src/hw01/testEcho.wav", this.echo(1000, 0.6, rawdata), audioFormat);
         WaveManager.writeaDownsampled(file);
 
-        byte[] generated = genTone.gennToneSin(200, 1, 3);
+        byte[] generated = genTone.gennToneSin(400, 1, 0.01);
 
 //        for (short x : generated) {
 //            System.out.println(x);
@@ -58,12 +58,13 @@ public class Sound_alt {
         AudioFormat targeted = new AudioFormat(
                 srcformat.getEncoding(),
                 (int) (srcformat.getSampleRate()),
-                srcformat.getSampleSizeInBits(),
+                8,
                 1,
                 srcformat.getFrameSize(),
                 srcformat.getFrameRate(),
                 srcformat.isBigEndian()
         );
+
         WaveManager.write("./src/hw01/testTone.wav", ByteBuffer.wrap(generated).asShortBuffer(), targeted);
 
         //AudioSystem.getAudioFileFormat(file).getFormat().getFrameRate();

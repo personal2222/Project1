@@ -46,10 +46,6 @@ public class Complex {
         return new Complex(-this.real, -this.imag);
     }
 
-    public Complex conjugate() {
-        return new Complex(this.real, -this.imag);
-    }
-
     public Complex mul(Complex a) {
         double real = this.real * a.getReal() - this.imag * a.getImaginary();
         double imag = this.real * a.getImaginary() + this.imag * a.getReal();
