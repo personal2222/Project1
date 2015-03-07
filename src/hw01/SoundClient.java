@@ -5,7 +5,6 @@
  */
 package hw01;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Scanner;
@@ -46,17 +45,85 @@ public class SoundClient {
                 process();
                 break;
             case 2:
+                generateToneMenu();
                 break;
             case 3:
                 break;
         }
     }
 
-    public static void generateformatmenu() {
-        System.out.println("What do you want ");
+    public static void generateToneMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
+        System.out.println("Please specify the the frequency, amplitude and the duration of the pure tone you want to generate.");
+        double freq, amplitude, duration = 0;
+        Scanner in = new Scanner(System.in);
+        System.out.println("Please give the frequency of the generated tone in Hz.");
+        while (!in.hasNextDouble()) {
+            in = new Scanner(System.in);
+            System.out.println("We can only take double numbers as frequency, please try again.");
+        }
+
+        freq = in.nextDouble();
+
+        while (true) {
+            in = new Scanner(System.in);
+            System.out.println("Please give the amplitude of the generated tone. The amplitude can only be from 0 to 1.");
+            if (in.hasNextDouble()) {
+                amplitude = in.nextDouble();
+                if (amplitude < 0 || amplitude > 1) {
+                    System.out.println("Amplitude could only be from 0 to 1, please try again.");
+                    continue;
+                }
+                break;
+            } else {
+                System.out.println("We can only take double numbers as amplitude, please try again.");
+            }
+        }
+
+        while (true) {
+            in = new Scanner(System.in);
+            System.out.println("Please give the duration of the generated tone in seconds.");
+            if (in.hasNextDouble()) {
+                duration = in.nextDouble();
+                break;
+            } else {
+                System.out.println("We can only take double numbers as duration, please try again.");
+            }
+        }
+
+        System.out.printf(
+                "Now generating a pure tone with frequency: %.3fHz, amplitude: %.3f, and duration %.3fs", freq, amplitude, duration);
+        int choice = 0;
+        byte[] toneWave = new byte[1];
+
+        System.out.println(
+                "What type of wave do you want to generate?\n1 for sine wave\n2 for square wave\n3 for sawtooth wave.");
+        while (true) {
+            in = new Scanner(System.in);
+            if (in.hasNextInt()) {
+                switch (in.nextInt()) {
+                    case 1:
+                        toneWave = genTone.generatePureTone(freq, amplitude, duration, genTone.ToneType.SINE);
+                        break;
+                    case 2:
+                        toneWave = genTone.generatePureTone(freq, amplitude, duration, genTone.ToneType.SQUARE);
+                        break;
+                    case 3:
+                        toneWave = genTone.generatePureTone(freq, amplitude, duration, genTone.ToneType.SAWTOOTH);
+                        break;
+                    default:
+                        System.out.println("We can only take intergers from 1 to 3 as input, please try again.");
+                }
+                break;
+            } else {
+                System.out.println("We can only take intergers from 1 to 3 as input, please try again.");
+            }
+        }
+        Sound pureTone = genTone.translateToSound(toneWave);
+
+        pureTone.play();
     }
 
-    public static void process() throws MalformedURLException, FileNotFoundException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
+    public static void process() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
         while (true) {
             System.out.println("PLS enter the audiofile's address to process. Type 0 to exit");
             Scanner play = new Scanner(System.in);
@@ -107,7 +174,7 @@ public class SoundClient {
         s.SetthisVolumn(addvalue);
     }
 
-    public static void outprintsetting(Sound s) throws IOException, FileNotFoundException {
+    public static void outprintsetting(Sound s) throws IOException {
         System.out.println("Give me a file path to store the file.");
         Scanner out = new Scanner(System.in);
         String filepath = out.nextLine();

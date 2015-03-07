@@ -7,7 +7,6 @@ package hw01;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
@@ -32,14 +31,14 @@ public class Sound {
      *
      * @param fileName
      */
-    public Sound(ShortBuffer b, AudioFormat af) throws MalformedURLException, UnsupportedAudioFileException, IOException {
+    public Sound(ShortBuffer b, AudioFormat af) throws UnsupportedAudioFileException {
 
         this.s = b;
         this.af = af;
 
     }
 
-    public Sound(String filepath) throws MalformedURLException, UnsupportedAudioFileException, IOException {
+    public Sound(String filepath) throws UnsupportedAudioFileException, IOException {
         Sound a = SoundIO.read(filepath);
         this.af = a.getAf();
         this.s = a.getS();
@@ -64,6 +63,7 @@ public class Sound {
     public void play() throws LineUnavailableException, IOException, InterruptedException {
 
         AudioInputStream out = this.getAIS();
+
         Clip clip = AudioSystem.getClip();
         clip.open(out);
         clip.start();
@@ -74,15 +74,16 @@ public class Sound {
     }
 
     public AudioInputStream getAIS() throws IOException {
-        short[] buf = new short[this.s.limit()];
+        short[] buf = new short[this.s.remaining()];
         this.s.get(buf);
         this.s = ShortBuffer.wrap(buf);
         int byteLength = buf.length * 2;
         byte[] in = new byte[byteLength];
         ByteBuffer.wrap(in).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(buf);
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(in);
-        AudioInputStream out = new AudioInputStream(byteStream, this.af, byteLength);
-        byteStream.close();
+        AudioInputStream out;
+        try (ByteArrayInputStream byteStream = new ByteArrayInputStream(in)) {
+            out = new AudioInputStream(byteStream, this.af, byteLength);
+        }
         return out;
     }
 
