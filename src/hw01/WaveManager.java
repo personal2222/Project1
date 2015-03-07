@@ -126,10 +126,10 @@ public class WaveManager {
         ShortBuffer downsam = SoundModification.downsamplethefilebythree(raw);
         AudioFormat targeted = new AudioFormat(
                 srcformat.getEncoding(),
-                (int) (srcformat.getSampleRate() / 3),
+                (int) (srcformat.getSampleRate() / 2),
                 srcformat.getSampleSizeInBits(),
                 srcformat.getChannels(),
-                srcformat.getFrameSize() / 3,
+                srcformat.getFrameSize() / 2,
                 srcformat.getFrameRate(),
                 srcformat.isBigEndian()
         );
