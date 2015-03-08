@@ -27,7 +27,10 @@ public class Sound {
     private AudioFormat af;
 
     /**
-     * https://www.youtube.com/watch?v=nUKya2DvYSo
+     * We get some basic ideas from the following video to use the java sound
+     * api.
+     *
+     * @see https://www.youtube.com/watch?v=nUKya2DvYSo
      *
      * @param fileName
      */
@@ -60,7 +63,7 @@ public class Sound {
         return af;
     }
 
-    public void play(double playtime) throws LineUnavailableException, IOException, InterruptedException {
+    public void play(long playtime) throws LineUnavailableException, IOException, InterruptedException {
 
         try (AudioInputStream out = this.getAIS()) {
             Clip clip = AudioSystem.getClip();

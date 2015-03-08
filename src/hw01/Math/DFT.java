@@ -35,6 +35,7 @@ public class DFT {
      * @throws LengthNotAPowerOfTwoException
      *
      * Note: It won't actually throw the LengthNotAPowerOfTwoException since it
+     * will add 0s to the array so that it actually have length of power of 2
      */
     public static Complex[] SoundDFT(Sound sound) throws LengthNotAPowerOfTwoException {
         short[] rawSound = sound.getShortRepresentation();
@@ -51,8 +52,8 @@ public class DFT {
     /**
      * This is the original DFT; it directly implements the definition of DFT
      *
-     * @param series
-     * @return
+     * @param series An array of complex numbers to perform the DFT
+     * @return the result as an array of complex numbers
      */
     public static Complex[] Transform(Complex[] series) {
         int inputLength = series.length;
@@ -72,12 +73,13 @@ public class DFT {
      * This program implements the Fast Fourier Transform with the sample code
      * mentioned below:
      *
+     * Implements FFT for performing DFT
      *
      * @see http://bbs.csdn.net/topics/390785412
      *
      * Assumes that the array is of length of power of 2
-     * @param series
-     * @return
+     * @param series An array of complex numbers to perform the DFT
+     * @return the result as an array of complex numbers
      */
     public static Complex[] FTransform(Complex[] series) throws LengthNotAPowerOfTwoException {
         int inputLength = series.length;
@@ -105,49 +107,14 @@ public class DFT {
         return result;
     }
 
-//    /**
-//     * http://bbs.csdn.net/topics/390785412
-//     *
-//     * @param x
-//     * @return
-//     */
-//    public static Complex[] fft(Complex[] x) {
-//        int N = x.length;
-//
-//        // base case
-//        if (N == 1) {
-//            return new Complex[]{x[0]};
-//        }
-//
-//        // radix 2 Cooley-Tukey FFT
-//        if (N % 2 != 0) {
-//            throw new RuntimeException("N is not a power of 2");
-//        }
-//
-//        // fft of even terms
-//        Complex[] even = new Complex[N / 2];
-//        for (int k = 0; k < N / 2; k++) {
-//            even[k] = x[2 * k];
-//        }
-//        Complex[] q = DFT.fft(even);
-//
-//        // fft of odd terms
-//        Complex[] odd = even;  // reuse the array
-//        for (int k = 0; k < N / 2; k++) {
-//            odd[k] = x[2 * k + 1];
-//        }
-//        Complex[] r = DFT.fft(odd);
-//
-//        // combine
-//        Complex[] y = new Complex[N];
-//        for (int k = 0; k < N / 2; k++) {
-//            double kth = -2 * k * Math.PI / N;
-//            Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
-//            y[k] = q[k].add(wk.mul(r[k]));
-//            y[k + N / 2] = q[k].sub(wk.mul(r[k]));
-//        }
-//        return y;
-//    }
+    /**
+     * Add 0s to the imput array so that it will actually have a length of power
+     * of 2
+     *
+     * @param inputArray: an array of complex numbers to be converted into a new
+     * array with extra 0s such that it would have a length of power of 2
+     * @return a complex array of length of 2
+     */
     private static Complex[] extendArrayToPowOfTwo(Complex[] inputArray) {
         int arrayLength = inputArray.length;
         int extraSlot = DFT.determineMissingSlots(arrayLength);
@@ -161,6 +128,13 @@ public class DFT {
         return result;
     }
 
+    /**
+     * Find how many 0s should be added such that the final array length would
+     * be a power of 2
+     *
+     * @param arrayLength
+     * @return
+     */
     private static int determineMissingSlots(int arrayLength) {
         int extraSlot = 0;
         int i = 0;
@@ -180,6 +154,14 @@ public class DFT {
         return extraSlot;
     }
 
+    /**
+     * Return -2 * PI * t * k * i /n, where i is Sqrt(-1)
+     *
+     * @param t
+     * @param k
+     * @param n
+     * @return
+     */
     private static Complex exponent(int t, int k, int n) {
         double imag = (-2 * Math.PI * t * k) / n;
         return new Complex(0, imag);
@@ -187,6 +169,11 @@ public class DFT {
 
 }
 
+/**
+ * Throwed when the length of the array used for DFT is not a power of 2
+ *
+ * @author Zhengri Fan
+ */
 class LengthNotAPowerOfTwoException extends Exception {
 
     public LengthNotAPowerOfTwoException(String errMsg) {

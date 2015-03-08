@@ -128,7 +128,7 @@ public class Complex {
      * value
      *
      * @param obj another object to be compared with.
-     * @return
+     * @return True if the two objects are the same.
      */
     @Override
     public boolean equals(Object obj) {

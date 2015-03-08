@@ -15,15 +15,33 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class genTone {
 
+    /**
+     * Tone type enum. Contains sine, square, sawtooth.
+     */
     enum ToneType {
 
         SINE, SQUARE, SAWTOOTH
     }
-
+    /**
+     * Standard frequency
+     */
     private static final double stdFreq = 44100;
+    /**
+     * Default audioformat
+     */
     private static final AudioFormat toneAudioFormat = new AudioFormat(
             AudioFormat.Encoding.PCM_UNSIGNED, 44100, 8, 1, 4, 44100, false);
 
+    /**
+     * Generate a pureTone with the given frequency, amplitude, and duration.
+     *
+     * @param freq
+     * @param amplitude
+     * @param duration
+     * @param toneType
+     * @return A Sound object contains the generated pureTone.
+     * @throws UnsupportedAudioFileException
+     */
     public static Sound generatePureToneAsSound(double freq, double amplitude, double duration, ToneType toneType) throws UnsupportedAudioFileException {
         byte[] rawWave = genTone.generatePureTone(freq, amplitude, duration, toneType);
         byte[] unsignedRawWave = new byte[rawWave.length];
@@ -39,6 +57,15 @@ public class genTone {
         return genTone.translateToSound(unsignedRawWave);
     }
 
+    /**
+     * Generate a pureTone with the given frequency, amplitude, and duration.
+     *
+     * @param freq
+     * @param amplitude
+     * @param duration
+     * @param toneType
+     * @return a byte array representing the generated frequency
+     */
     public static byte[] generatePureTone(double freq, double amplitude, double duration, ToneType toneType) {
         if (toneType == ToneType.SINE) {
             return gennToneSin(freq, amplitude, duration);
@@ -49,12 +76,28 @@ public class genTone {
         }
     }
 
+    /**
+     * Translate a short array to sound using the default audioformat
+     *
+     * @param a, a byte array representing the sound
+     * @return a Sound object contains the byte array as the raw sound wave
+     * @throws UnsupportedAudioFileException
+     */
     public static Sound translateToSound(byte[] a) throws UnsupportedAudioFileException {
 
         ByteBuffer buffer = ByteBuffer.wrap(a);
         return new Sound(buffer.asShortBuffer(), toneAudioFormat);
     }
 
+    /**
+     * Generate a pureTone with the given frequency, amplitude, and duration as
+     * a square wave.
+     *
+     * @param freq
+     * @param amplitude
+     * @param duration
+     * @return a byte array representing the generated frequency
+     */
     private static byte[] gennToneSquare(double freq, double amplitude, double duration) {
         int totSlot = (int) (duration * genTone.stdFreq);
         int slotsPerWave = (int) (genTone.stdFreq / freq);
@@ -70,6 +113,15 @@ public class genTone {
         return generatedWave;
     }
 
+    /**
+     * Generate a pureTone with the given frequency, amplitude, and duration as
+     * a sawtooth wave.
+     *
+     * @param freq
+     * @param amplitude
+     * @param duration
+     * @return a byte array representing the generated frequency
+     */
     private static byte[] gennToneSaw(double freq, double amplitude, double duration) {
         int totSlot = (int) (duration * genTone.stdFreq);
         int slotsPerWave = (int) (genTone.stdFreq / freq);
@@ -89,6 +141,15 @@ public class genTone {
         return generatedWave;
     }
 
+    /**
+     * Generate a pureTone with the given frequency, amplitude, and duration as
+     * a sine wave.
+     *
+     * @param freq
+     * @param amplitude
+     * @param duration
+     * @return a byte array representing the generated frequency
+     */
     private static byte[] gennToneSin(double freq, double amplitude, double duration) {
 
         int totSlot = (int) (duration * genTone.stdFreq);

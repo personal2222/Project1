@@ -22,6 +22,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundIO {
 
+    /**
+     * Read the given sound file and return a Sound object representing it
+     *
+     * @param Filename, the path of the sound object to be opened
+     * @return A sound object representing the given audio file
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     */
     public static Sound read(String Filename) throws IOException, UnsupportedAudioFileException {
         File audioFile = new File(Filename);
         AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile.toURI().toURL());
@@ -34,17 +42,38 @@ public class SoundIO {
         return new Sound(b, audioStream.getFormat());
     }
 
+    /**
+     * Write the given Sound object to the file specified.
+     *
+     * @param s
+     * @param f
+     * @throws IOException
+     */
     public static void write(Sound s, File f) throws IOException {
         AudioInputStream ais = s.getAIS();
         AudioSystem.write(ais, AudioFileFormat.Type.WAVE, f);
         ais.close();
     }
 
+    /**
+     * Write the given Sound object to the path specified.
+     *
+     * @param s
+     * @param f
+     * @throws IOException
+     */
     public static void write(Sound s, String filePath) throws IOException {
         File f = new File(filePath);
         SoundIO.write(s, f);
     }
 
+    /**
+     * Change the bit length and return the new AudioFormat
+     *
+     * @param f
+     * @param bitlength
+     * @return
+     */
     public static AudioFormat changeBitLength(AudioFormat f, int bitlength) {
         return new AudioFormat(
                 f.getEncoding(),
@@ -58,6 +87,12 @@ public class SoundIO {
 
     }
 
+    /**
+     * Downsize the sample rate by 2
+     *
+     * @param f the original audioformat
+     * @return the audioformat representing the new format.
+     */
     public static AudioFormat downSampleRateby2(AudioFormat f) {
         return new AudioFormat(
                 f.getEncoding(),
