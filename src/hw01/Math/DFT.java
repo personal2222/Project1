@@ -15,6 +15,8 @@
  */
 package hw01.Math;
 
+import hw01.Sound;
+
 /**
  *
  * @author Zhengri Fan
@@ -24,37 +26,18 @@ package hw01.Math;
  */
 public class DFT {
 
-//    public static void main(String args[]) throws IOException, UnsupportedAudioFileException, LengthNotAPowerOfTwoException {
-//        File file = new File("./src/hw01/400.wav");
-//        System.out.println(AudioSystem.getAudioFileFormat(file).getFormat().getSampleSizeInBits());
-//        ShortBuffer rawWave = hw01.WaveManager.readRawWav(new File("./src/hw01/drum.wav"));
-//        short[] shortWave = WaveManager.generateaDuplicate(rawWave);
-//        Complex[] waveRepr = new Complex[shortWave.length];
-//        System.out.println("Read Wave");
-//        for (int i = 0; i < waveRepr.length; ++i) {
-////            Complex element = new Complex(0, i * i / 44100);
-////            element = element.exp();
-////            waveRepr[i] = element.mul(shortWave[i]);
-//            waveRepr[i] = new Complex(shortWave[i] / 1024, 0);
-//        }
-//        Complex[] waveRepr2 = DFT.extendArrayToPowOfTwo(waveRepr);
-//        //System.out.print(waveRepr2.length);
-//        System.out.println("Start Transform");
-//        Complex[] result = DFT.FTransform(waveRepr2);
-//        System.out.println("End Transform");
-//        FileWriter fw = new FileWriter("./test.csv");
-//        for (Complex x : result) {
-//            fw.write(x.magnitude() + "\n");
-//        }
-//
-//    }
     /**
      *
-     * @param rawSound
-     * @return
+     * Performs the DFT using the FFT approach of the given sound object.
+     *
+     * @param sound the Sound object to perform the DFT operation
+     * @return An array of Complex numbers representing the result of the DFT
      * @throws LengthNotAPowerOfTwoException
+     *
+     * Note: It won't actually throw the LengthNotAPowerOfTwoException since it
      */
-    public static Complex[] SoundDFT(short[] rawSound) throws LengthNotAPowerOfTwoException {
+    public static Complex[] SoundDFT(Sound sound) throws LengthNotAPowerOfTwoException {
+        short[] rawSound = sound.getShortRepresentation();
         Complex[] waveRepr = new Complex[rawSound.length];
         System.out.println("Read Wave");
         for (int i = 0; i < waveRepr.length; ++i) {

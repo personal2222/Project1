@@ -7,7 +7,6 @@ package hw01;
 
 import java.nio.ByteBuffer;
 import javax.sound.sampled.AudioFormat;
-import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
@@ -23,17 +22,24 @@ public class genTone {
 
     private static final double stdFreq = 44100;
     private static final AudioFormat toneAudioFormat = new AudioFormat(
-            PCM_SIGNED, 44100, 8, 1, 4, 44100, false);
+            AudioFormat.Encoding.PCM_UNSIGNED, 44100, 8, 1, 4, 44100, false);
 
     public static Sound generatePureToneAsSound(double freq, double amplitude, double duration, ToneType toneType) throws UnsupportedAudioFileException {
         byte[] rawWave = genTone.generatePureTone(freq, amplitude, duration, toneType);
-        return genTone.translateToSound(rawWave);
+        byte[] unsignedRawWave = new byte[rawWave.length];
+        byte min = Byte.MAX_VALUE;
+        for (byte x : rawWave) {
+            if (x < min) {
+                min = x;
+            }
+        }
+        for (int i = 0; i < rawWave.length; ++i) {
+            unsignedRawWave[i] = (byte) (rawWave[i] - min);
+        }
+        return genTone.translateToSound(unsignedRawWave);
     }
 
     public static byte[] generatePureTone(double freq, double amplitude, double duration, ToneType toneType) {
-//        if (amplitude > 1 || amplitude < 0) {
-//            throw new AmplitudeOutOfRangeException("Invalid input for amplitude, legal amplitude should be from 0 to 1");
-//        }
         if (toneType == ToneType.SINE) {
             return gennToneSin(freq, amplitude, duration);
         } else if (toneType == ToneType.SAWTOOTH) {
@@ -84,7 +90,6 @@ public class genTone {
     }
 
     private static byte[] gennToneSin(double freq, double amplitude, double duration) {
-        //freq = freq / 2;
 
         int totSlot = (int) (duration * genTone.stdFreq);
         byte actualAmplitude = (byte) (amplitude * Byte.MAX_VALUE / 2);
@@ -96,11 +101,3 @@ public class genTone {
     }
 
 }
-
-//class AmplitudeOutOfRangeException extends Exception {
-//
-//    public AmplitudeOutOfRangeException(String message) {
-//        super(message);
-//    }
-//
-//}

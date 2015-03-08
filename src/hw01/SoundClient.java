@@ -7,9 +7,12 @@ package hw01;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.ByteBuffer;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.sound.sampled.AudioFormat;
+import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -18,6 +21,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * @author huangjiayu
  */
 public class SoundClient {
+
+    private static Object Bytebuffer;
 
     public static void main(String[] args) {
 
@@ -118,8 +123,10 @@ public class SoundClient {
                 System.out.println("We can only take intergers from 1 to 3 as input, please try again.");
             }
         }
+        WaveManager.write("./testTone.wav", ByteBuffer.wrap(toneWave).asShortBuffer(), new AudioFormat(
+                          PCM_SIGNED, 44100, 8, 1, 4, 44100, false));
         Sound pureTone = genTone.translateToSound(toneWave);
-
+        SoundIO.write(pureTone, "./testTone");
         pureTone.play();
     }
 

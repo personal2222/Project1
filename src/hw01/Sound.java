@@ -60,37 +60,57 @@ public class Sound {
         return af;
     }
 
-    public void play() throws LineUnavailableException, IOException, InterruptedException {
+    public void play(double playtime) throws LineUnavailableException, IOException, InterruptedException {
 
-        AudioInputStream out = this.getAIS();
-
-        Clip clip = AudioSystem.getClip();
-        clip.open(out);
-        clip.start();
-        Thread.sleep(clip.getMicrosecondLength() / 1000);
-        clip.stop();
-        out.close();
+        try (AudioInputStream out = this.getAIS()) {
+            Clip clip = AudioSystem.getClip();
+            clip.open(out);
+            clip.start();
+            Thread.sleep(playtime);
+            clip.stop();
+        }
 
     }
 
+    public void play() throws IOException, InterruptedException, LineUnavailableException {
+
+        try (AudioInputStream out = this.getAIS()) {
+            Clip clip = AudioSystem.getClip();
+            clip.open(out);
+            clip.start();
+            Thread.sleep(clip.getMicrosecondLength() / 1000);
+            clip.stop();
+        }
+    }
+
+    /**
+     * @see
+     * http://stackoverflow.com/questions/11665147/convert-a-longbuffer-intbuffer-shortbuffer-to-bytebuffer
+     * @return
+     * @throws IOException
+     */
     public AudioInputStream getAIS() throws IOException {
-        short[] buf = new short[this.s.remaining()];
+        short[] buf = new short[this.s.limit()];
         this.s.get(buf);
         this.s = ShortBuffer.wrap(buf);
         int byteLength = buf.length * 2;
         byte[] in = new byte[byteLength];
+//        ByteBuffer bb = ByteBuffer.wrap(in);
         ByteBuffer.wrap(in).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(buf);
+//        bb.asShortBuffer().put(buf);
         AudioInputStream out;
+
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(in)) {
             out = new AudioInputStream(byteStream, this.af, byteLength);
         }
+
         return out;
     }
 
     public short[] getShortRepresentation() {
         short[] dst = new short[this.s.limit()];
         this.s.get(dst);
-        this.s = ShortBuffer.wrap(dst);
+        //this.s = ShortBuffer.wrap(dst);
         return dst;
     }
 
@@ -110,7 +130,7 @@ public class Sound {
         int sampleDelay = (int) (44.100 * (float) delayInMiSec);
         short buf = 0;
         Sound a = this.SetVolumn(-0.5);//This is to avoid noise
-        short buffer[] = a.getShortRepresentation();
+        short[] buffer = a.getShortRepresentation();
         for (int i = 0; i < buffer.length - sampleDelay; i++) {
 
             buffer[i + sampleDelay] += buffer[i] * decay;
@@ -158,9 +178,6 @@ public class Sound {
         raw2.addSound(raw1.echo(350, 0.17));
         raw2.addSound(raw1.echo(250, 0.23));
         raw2.addSound(raw1.echo(150, 0.27));
-//        for (int i = 0; i < 40; i++) {
-//            raw2.addSound(raw1.echo(100 + i * 23, 0.1 - i * 0.002));
-//        }
 
         return raw2;
     }
