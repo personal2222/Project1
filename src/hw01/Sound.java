@@ -217,9 +217,8 @@ public class Sound {
      * echo to the original sound. 1 represents 100%
      * @return A new Sound with echo
      * @throws UnsupportedAudioFileException
-     * @throws IOException
      */
-    public Sound echo(int delayInMiSec, double decay) throws UnsupportedAudioFileException, IOException {
+    public Sound echo(int delayInMiSec, double decay) throws UnsupportedAudioFileException {
         int sampleDelay = (int) ((double) this.af.getSampleRate() * (float) delayInMiSec);
         short buf = 0;
         Sound a = this.SetVolumn(-0.5);//This is to avoid noise
@@ -240,9 +239,8 @@ public class Sound {
      * @return A new Sound representing the original sound after the volume
      * adjustment.
      * @throws UnsupportedAudioFileException
-     * @throws IOException
      */
-    public Sound SetVolumn(double set) throws UnsupportedAudioFileException, IOException {
+    public Sound SetVolumn(double set) throws UnsupportedAudioFileException {
         double ratio = 1 + set;
         short[] buffer = this.getShortRepresentation();
         for (int i = 0; i < buffer.length; i++) {

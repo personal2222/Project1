@@ -63,7 +63,7 @@ public class SoundClient {
      * @throws LineUnavailableException
      * @throws InterruptedException
      */
-    private static void selectionMenu() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
+    private static void selectionMenu() throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
         System.out.println("Pls select what do you want ?");
         System.out.println("Select 1 to process a file");
         System.out.println("Select 2 to generate a tone");
@@ -84,50 +84,133 @@ public class SoundClient {
     /**
      * Process the audio file read.
      *
+     *
+     *
+     * @see
+     * <a href="http://stackoverflow.com/questions/551578/how-to-break-multiple-foreach-loop">
+     * http://stackoverflow.com/questions/551578/how-to-break-multiple-foreach-loop</a>
+     * Learned how to break the outermost loop
      * @throws MalformedURLException
      * @throws IOException
      * @throws UnsupportedAudioFileException
      * @throws LineUnavailableException
      * @throws InterruptedException
      */
-    private static void process() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
+    private static void process() throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
+        OUTERMOST:
         while (true) {
-            System.out.println("PLS enter the audiofile's address to process. Type 0 to exit");
-            Scanner play = new Scanner(System.in);
-            String fileaddress = play.nextLine();
-            if ("0".equals(fileaddress)) {
+            Scanner in = new Scanner(System.in);
+            Sound sound = null;
+            while (true) {
+                System.out.println("Please enter the audiofile's path to process. Type 0 to exit");
+                in = new Scanner(System.in);
+                String fileaddress = in.nextLine();
+                if ("0".equals(fileaddress)) {
+                    break OUTERMOST;
+                }
+                try {
+                    sound = SoundIO.read(fileaddress);
+                    break;
+                } catch (IOException ioe) {
+                    System.out.println("File unavailable to use, please chech the file path and try again");
+                    continue;
+                } catch (UnsupportedAudioFileException uafe) {
+                    System.out.println("Audio file not supported, please change a file and try again");
+                    continue;
+                }
+            }
+            modifySouond(sound);
+        }
+    }
+
+    /**
+     * Modify sound menu
+     *
+     * @param sound a sound object to be modified
+     * @throws LineUnavailableException
+     * @throws InterruptedException
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
+    private static void modifySouond(Sound sound) throws LineUnavailableException, InterruptedException, UnsupportedAudioFileException, IOException {
+        Scanner in;
+        int select = 0;
+        while (true) {
+            System.out.println("What do you want to do with this sound file?");
+            System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation 5:shrink the file 6: change a file 7: To save the file");
+            in = new Scanner(System.in);
+            if (in.hasNextInt()) {
+                select = in.nextInt();
                 break;
             }
-            Sound sound = SoundIO.read(fileaddress);
-            while (true) {
-                System.out.println("What do you want to do with this sound file?");
-                System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation 5:shrink the file 6: change a file 7: To save the file");
-                int select = play.nextInt();
-                if (select == 6) {
-                    break;
-                }
-                switch (select) {
-                    case 1:
+            System.out.println("Please give 1 to 6 as input.");
+        }
+        while (true) {
+            in = new Scanner(System.in);
+            System.out.println("What do you want to do with this sound file?");
+            System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation 5:shrink the file 6: change a file 7: To save the file");
+            if (select == 6) {
+                break;
+            }
+            switch (select) {
+                case 1:
+                    try {
                         sound.play();
-                        break;
-                    case 2:
-                        volumnsetting(sound);
-                        break;
-                    case 3:
-                        Sound temp = echosetting(sound);
+                    } catch (LineUnavailableException lue) {
+                        System.err.println("Line Unavailable; program terminates.");
+                        throw lue;
+                    } catch (InterruptedException ie) {
+                        System.err.println("Sound interrupted");
+                        throw ie;
+                    }
+                    break;
+                case 2:
+                    volumnsetting(sound);
+                    break;
+                case 3:
+                    Sound temp = echosetting(sound);
+                    try {
                         temp.play();
-                        outprintsetting(temp);
-                    case 4:
-                        Sound temp1 = sound.Reverberation();
+                    } catch (LineUnavailableException lue) {
+                        System.err.println("Line Unavailable; program terminates.");
+                        throw lue;
+                    } catch (InterruptedException ie) {
+                        System.err.println("Sound interrupted");
+                        throw ie;
+                    }
+                    outprintsetting(temp);
+                    break;
+                case 4:
+                    Sound temp1 = sound.Reverberation();
+                    try {
                         temp1.play();
-                        outprintsetting(temp1);
-                    case 5:
-                        Sound temp2 = sound.downSamplebytwo();
+                    } catch (LineUnavailableException lue) {
+                        System.err.println("Line Unavailable; program terminates.");
+                        throw lue;
+                    } catch (InterruptedException ie) {
+                        System.err.println("Sound interrupted");
+                        throw ie;
+                    }
+                    outprintsetting(temp1);
+                    break;
+                case 5:
+                    Sound temp2 = sound.downSamplebytwo();
+                    try {
                         temp2.play();
-                        outprintsetting(temp2);
-                    case 7:
-                        outprintsetting(sound);
-                }
+                    } catch (LineUnavailableException lue) {
+                        System.err.println("Line Unavailable; program terminates.");
+                        throw lue;
+                    } catch (InterruptedException ie) {
+                        System.err.println("Sound interrupted");
+                        throw ie;
+                    }
+                    outprintsetting(temp2);
+                    break;
+                case 7:
+                    outprintsetting(sound);
+                    break;
+                default:
+                    System.out.println("Please give 1 to 6 as input.");
             }
         }
     }
@@ -176,14 +259,13 @@ public class SoundClient {
      * @throws UnsupportedAudioFileException
      * @throws IOException
      */
-    private static Sound echosetting(Sound s) throws UnsupportedAudioFileException, IOException {
+    private static Sound echosetting(Sound s) throws UnsupportedAudioFileException {
         System.out.println("To do echo effect, pls enter a delay value you want to use");
         Scanner echo = new Scanner(System.in);
         int delay = echo.nextInt();
         System.out.println("pls enter a decay value you want to use");
         double decay = echo.nextDouble();
         return s.echo(delay, decay);
-
     }
 
     /**
@@ -331,7 +413,8 @@ public class SoundClient {
      * Play or save the generated tone
      *
      * @see For creating a path that is not existed in the file system.
-     * http://stackoverflow.com/questions/2833853/create-whole-path-automatically-when-writing-to-a-new-file
+     * <a href="http://stackoverflow.com/questions/2833853/create-whole-path-automatically-when-writing-to-a-new-file">
+     * http://stackoverflow.com/questions/2833853/create-whole-path-automatically-when-writing-to-a-new-file</a>
      *
      * @param toneSound
      * @param duration
