@@ -26,7 +26,7 @@ public class SoundIO {
         File audioFile = new File(Filename);
         AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile.toURI().toURL());
         byte[] rawWave;
-        int byteLength = (int) audioStream.getFrameLength() * 4;
+        int byteLength = (int) audioStream.getFrameLength() * audioStream.getFormat().getFrameSize();
         rawWave = new byte[byteLength];
         audioStream.read(rawWave);
         ByteBuffer a = ByteBuffer.wrap(rawWave);
