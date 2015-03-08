@@ -34,8 +34,13 @@ public class SoundClient {
 
     private static final Path tempTonePath = Paths.get("./tempFile/pureTone");
 
+    /**
+     * Start the SoundClient class
+     *
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
-
         try {
             selectionMenu();
         } catch (IOException ex) {
@@ -49,7 +54,16 @@ public class SoundClient {
         }
     }
 
-    public static void selectionMenu() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
+    /**
+     * Initialize the selection menu
+     *
+     * @throws MalformedURLException
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     * @throws LineUnavailableException
+     * @throws InterruptedException
+     */
+    private static void selectionMenu() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
         System.out.println("Pls select what do you want ?");
         System.out.println("Select 1 to process a file");
         System.out.println("Select 2 to generate a tone");
@@ -67,7 +81,15 @@ public class SoundClient {
         }
     }
 
-    public static void generateToneMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
+    /**
+     * Menu used for generate a pure tone.
+     *
+     * @throws UnsupportedAudioFileException
+     * @throws LineUnavailableException
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private static void generateToneMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         System.out.println("Please specify the the frequency, amplitude and the duration of the pure tone you want to generate.");
         double freq, amplitude, duration = 0;
         System.out.println("Please give the frequency of the generated tone in Hz.");
@@ -83,6 +105,11 @@ public class SoundClient {
         playOrSaveTone(toneSound, duration);
     }
 
+    /**
+     * Ask for the tone frequency
+     *
+     * @return the tone frequency that the user want to generate
+     */
     private static double askToneFrequency() {
         Scanner in = new Scanner(System.in);
         double freq;
@@ -94,6 +121,11 @@ public class SoundClient {
         return freq;
     }
 
+    /**
+     * Ask for the tone amplitude
+     *
+     * @return the tone amplitude that the user want to generate
+     */
     private static double askToneAmplitude() {
         double amplitude = 0;
         Scanner in;
@@ -114,6 +146,11 @@ public class SoundClient {
         return amplitude;
     }
 
+    /**
+     * Ask for the tone duration
+     *
+     * @return the tone duration that the user want to generate
+     */
     private static double askToneDuration() {
         double duration = 0;
         Scanner in;
@@ -130,6 +167,15 @@ public class SoundClient {
         return duration;
     }
 
+    /**
+     * Generate the actual tone with the given frequency, amplitude and
+     * duration.
+     *
+     * @param freq Tone frequency
+     * @param amplitude Tone amplitude
+     * @param duration Tone duration
+     * @return an byte array of the generated new tone.
+     */
     private static byte[] genToneAsSpecified(double freq, double amplitude, double duration) {
         byte[] toneWave = new byte[1];
         Scanner in;
@@ -222,7 +268,7 @@ public class SoundClient {
         }
     }
 
-    public static void process() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
+    private static void process() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
         while (true) {
             System.out.println("PLS enter the audiofile's address to process. Type 0 to exit");
             Scanner play = new Scanner(System.in);
@@ -264,14 +310,14 @@ public class SoundClient {
         }
     }
 
-    public static void volumnsetting(Sound s) throws UnsupportedAudioFileException, IOException {
+    private static void volumnsetting(Sound s) throws UnsupportedAudioFileException, IOException {
         System.out.println("What volumn do you want to add or minus?");
         Scanner volumn = new Scanner(System.in);
         double addvalue = volumn.nextDouble();
         s.SetthisVolumn(addvalue);
     }
 
-    public static void outprintsetting(Sound s) throws IOException {
+    private static void outprintsetting(Sound s) throws IOException {
         System.out.println("Give me a file path to store the file.");
         Scanner out = new Scanner(System.in);
         String filepath = out.nextLine();
@@ -280,7 +326,7 @@ public class SoundClient {
         System.out.print("Saved, the path is " + filepath);
     }
 
-    public static Sound echosetting(Sound s) throws UnsupportedAudioFileException, IOException {
+    private static Sound echosetting(Sound s) throws UnsupportedAudioFileException, IOException {
         System.out.println("To do echo effect, pls enter a delay value you want to use");
         Scanner echo = new Scanner(System.in);
         int delay = echo.nextInt();

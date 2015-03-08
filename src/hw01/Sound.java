@@ -176,6 +176,11 @@ public class Sound {
         return out;
     }
 
+    /**
+     * Retrive the sort array buffered by the shortbuffer
+     *
+     * @return a short array of the raw wave.
+     */
     public short[] getShortRepresentation() {
         short[] dst = new short[this.s.limit()];
         for (int i = 0; i < dst.length; ++i) {
@@ -184,6 +189,14 @@ public class Sound {
         return dst;
     }
 
+    /**
+     * Down the sample rate by two
+     *
+     * @return a new Sound that is almost the same as pervious except the sample
+     * rate was one half of before
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
     public Sound downSamplebytwo() throws UnsupportedAudioFileException, IOException {
         short[] buffer = this.getShortRepresentation();
         short[] returnValue = new short[buffer.length / 2];
@@ -196,6 +209,16 @@ public class Sound {
         return new Sound(b, SoundIO.downSampleRateby2(this.af));
     }
 
+    /**
+     * Make an echo of the current sound and return a new sound representing it.
+     *
+     * @param delayInMiSec The delay in ms
+     * @param decay 0 to 1 representing the percentage of the amplitude of the
+     * echo to the original sound. 1 represents 100%
+     * @return A new Sound with echo
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
     public Sound echo(int delayInMiSec, double decay) throws UnsupportedAudioFileException, IOException {
         int sampleDelay = (int) ((double) this.af.getSampleRate() * (float) delayInMiSec);
         short buf = 0;
@@ -208,6 +231,17 @@ public class Sound {
         return new Sound(b, this.af);
     }
 
+    /**
+     * Set the volume of the sound by the ratio represented by var set.
+     *
+     *
+     * @param set if positive, increse the volume by set * 100%; otherwise
+     * decrease the volume by abs(set) * 100 %
+     * @return A new Sound representing the original sound after the volume
+     * adjustment.
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
     public Sound SetVolumn(double set) throws UnsupportedAudioFileException, IOException {
         double ratio = 1 + set;
         short[] buffer = this.getShortRepresentation();
@@ -223,11 +257,27 @@ public class Sound {
         }
     }
 
+    /**
+     * Set the volume of the current Sound object by the number indicated by
+     * set.
+     *
+     * @param set if positive, increse the volume by set * 100%; otherwise
+     * decrease the volume by abs(set) * 100 %
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
     public void SetthisVolumn(double set) throws UnsupportedAudioFileException, IOException {
         Sound temp = this.SetVolumn(set);
         this.s = temp.s;
     }
 
+    /**
+     * Add a mistery reverberation to the current sound
+     *
+     * @return A new Sound representing the original sound with reverberation.
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
     public Sound Reverberation() throws UnsupportedAudioFileException, IOException {
         Sound raw2 = this;
         Sound raw1 = this;
@@ -251,6 +301,15 @@ public class Sound {
         return result;
     }
 
+    /**
+     * Add two sound objects to each other. Mainly by adding their waves
+     * together.
+     *
+     * @param b Another sound Object to be added with the current sound object
+     * @return A new Sound object representing the sum of the two object
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
     public Sound addSound(Sound b) throws UnsupportedAudioFileException, IOException {
         short[] a;
         short[] c;
@@ -273,6 +332,12 @@ public class Sound {
 
     }
 
+    /**
+     * Get the max volume possible
+     *
+     * @return a short number representing the maxium absolute value of the
+     * sound wave.
+     */
     public short getMaxVolume() {
         short[] a = this.getShortRepresentation();
         short temp1 = 0;
