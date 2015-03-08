@@ -1,7 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* *****************************************
+ * CSCI205 - Software Engineering and Design
+ * Spring 2015
+ *
+ * Name: Zhengri Fan, Jiayu Huang
+ * Date: 2015-3-3
+ * Time: 13:24:46
+ *
+ * Project: csci205
+ * Package: hw01
+ * File: DFT
+ * Description: Project1
+ *
+ * ****************************************
  */
 package hw01;
 
@@ -18,7 +28,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  *
- * @author huangjiayu
+ * @author Jiayu Huang, Zhengri Fan
  */
 public class SoundClient {
 
@@ -158,6 +168,18 @@ public class SoundClient {
         return toneSound;
     }
 
+    /**
+     *
+     *
+     * @see
+     * http://stackoverflow.com/questions/2833853/create-whole-path-automatically-when-writing-to-a-new-file
+     *
+     * @param toneSound
+     * @param duration
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws LineUnavailableException
+     */
     private static void playOrSaveTone(Sound toneSound, double duration) throws IOException, InterruptedException, LineUnavailableException {
         Scanner in;
         System.out.println("Tone generated successfully.");

@@ -2,14 +2,14 @@
  * CSCI205 - Software Engineering and Design
  * Spring 2015
  *
- * Name: Zhengri Fan Jiayu Huang
+ * Name: Zhengri Fan, Jiayu Huang
  * Date: 2015-2-28
  * Time: 23:24:19
  *
  * Project: csci205
  * Package: hw01.Math
  * File: DFT
- * Description:
+ * Description: Project1
  *
  * ****************************************
  */
@@ -18,11 +18,7 @@ package hw01.Math;
 import hw01.Sound;
 
 /**
- *
- * @author Zhengri Fan
- *
- *
- *
+ * @author Jiayu Huang, Zhengri Fan
  */
 public class DFT {
 

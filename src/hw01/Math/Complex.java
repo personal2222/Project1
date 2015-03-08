@@ -1,13 +1,23 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* *****************************************
+ * CSCI205 - Software Engineering and Design
+ * Spring 2015
+ *
+ * Name: Zhengri Fan, Jiayu Huang
+ * Date: 2015-2-28
+ * Time: 21:12:33
+ *
+ * Project: csci205
+ * Package: hw01.Math
+ * File: DFT
+ * Description: Project1
+ *
+ * ****************************************
  */
 package hw01.Math;
 
 /**
  *
- * @author zf002
+ * @author Jiayu Huang, Zhengri Fan
  */
 public class Complex {
 

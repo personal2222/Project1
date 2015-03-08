@@ -1,7 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* *****************************************
+ * CSCI205 - Software Engineering and Design
+ * Spring 2015
+ *
+ * Name: Zhengri Fan, Jiayu Huang
+ * Date: 2015-2-28
+ * Time: 22:24:45
+ *
+ * Project: csci205
+ * Package: hw01
+ * File: DFT
+ * Description: Project1
+ *
+ * ****************************************
  */
 package hw01;
 
@@ -19,7 +29,15 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  *
- * @author zf002
+ * @author Jiayu Huang, Zhengri Fan
+ */
+/**
+ * We get some basic ideas from the following video to use the java sound api.
+ *
+ * @see
+ * <a href="https://www.youtube.com/watch?v=nUKya2DvYSo">
+ * https://www.youtube.com/watch?v=nUKya2DvYSo</a>
+ * @param fileName
  */
 public class Sound {
 
@@ -27,12 +45,12 @@ public class Sound {
     private AudioFormat af;
 
     /**
-     * We get some basic ideas from the following video to use the java sound
-     * api.
+     * The constructor of the Sound object. It takes a ShortBuffer that
+     * represents the wave of the sound, and the audioFormat of that wave.
      *
-     * @see https://www.youtube.com/watch?v=nUKya2DvYSo
-     *
-     * @param fileName
+     * @param b the wave of the sound
+     * @param af the audioformat of the sound
+     * @throws UnsupportedAudioFileException
      */
     public Sound(ShortBuffer b, AudioFormat af) throws UnsupportedAudioFileException {
 
@@ -41,28 +59,64 @@ public class Sound {
 
     }
 
+    /**
+     * The alternative constructor of the sound object, takes in a path
+     * representing the sound file.
+     *
+     * @param filepath the path representing the audio file.
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
     public Sound(String filepath) throws UnsupportedAudioFileException, IOException {
         Sound a = SoundIO.read(filepath);
         this.af = a.getAf();
         this.s = a.getS();
     }
 
+    /**
+     * Set the shortBuffer in the sound object
+     *
+     * @param s the new short buffer
+     */
     public void setS(ShortBuffer s) {
         this.s = s;
     }
 
+    /**
+     * Set the audioformat in the sound object
+     *
+     * @param af the new audioformat of the Sound object
+     */
     public void setAf(AudioFormat af) {
         this.af = af;
     }
 
+    /**
+     * Get the shortBuffer of the sound object
+     *
+     * @return the shortBuffer of the sound object
+     */
     public ShortBuffer getS() {
         return s;
     }
 
+    /**
+     * Get the audioformat of the sound object
+     *
+     * @return the audioformat of the sound object
+     */
     public AudioFormat getAf() {
         return af;
     }
 
+    /**
+     * Play the given sound with a given play time
+     *
+     * @param playtime the time for the sound to be played
+     * @throws LineUnavailableException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void play(double playtime) throws LineUnavailableException, IOException, InterruptedException {
 
         try (AudioInputStream out = this.getAIS()) {
@@ -77,6 +131,13 @@ public class Sound {
 
     }
 
+    /**
+     * Play the full sound
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws LineUnavailableException
+     */
     public void play() throws IOException, InterruptedException, LineUnavailableException {
 
         try (AudioInputStream out = this.getAIS()) {
@@ -92,9 +153,13 @@ public class Sound {
     }
 
     /**
+     * Opens an audioInputStream for the given sound object
+     *
      * @see
-     * http://stackoverflow.com/questions/11665147/convert-a-longbuffer-intbuffer-shortbuffer-to-bytebuffer
-     * @return
+     * <a href="http://stackoverflow.com/questions/11665147/convert-a-longbuffer-intbuffer-shortbuffer-to-bytebuffer">
+     * http://stackoverflow.com/questions/11665147/convert-a-longbuffer-intbuffer-shortbuffer-to-bytebuffer</a>
+     * Borrowed ideas for converting buffers
+     * @return the audioInputStream of the sound object
      * @throws IOException
      */
     public AudioInputStream getAIS() throws IOException {
@@ -103,22 +168,19 @@ public class Sound {
         this.s = ShortBuffer.wrap(buf);
         int byteLength = buf.length * 2;
         byte[] in = new byte[byteLength];
-//        ByteBuffer bb = ByteBuffer.wrap(in);
         ByteBuffer.wrap(in).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(buf);
-//        bb.asShortBuffer().put(buf);
         AudioInputStream out;
-
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(in)) {
             out = new AudioInputStream(byteStream, this.af, byteLength);
         }
-
         return out;
     }
 
     public short[] getShortRepresentation() {
         short[] dst = new short[this.s.limit()];
-        this.s.get(dst);
-        //this.s = ShortBuffer.wrap(dst);
+        for (int i = 0; i < dst.length; ++i) {
+            dst[i] = this.s.get(i);
+        }
         return dst;
     }
 
@@ -135,23 +197,21 @@ public class Sound {
     }
 
     public Sound echo(int delayInMiSec, double decay) throws UnsupportedAudioFileException, IOException {
-        int sampleDelay = (int) (44.100 * (float) delayInMiSec);
+        int sampleDelay = (int) ((double) this.af.getSampleRate() * (float) delayInMiSec);
         short buf = 0;
         Sound a = this.SetVolumn(-0.5);//This is to avoid noise
         short[] buffer = a.getShortRepresentation();
         for (int i = 0; i < buffer.length - sampleDelay; i++) {
-
             buffer[i + sampleDelay] += buffer[i] * decay;
         }
-
-        return new Sound(ShortBuffer.wrap(buffer), this.af);
+        ShortBuffer b = ShortBuffer.wrap(buffer);
+        return new Sound(b, this.af);
     }
 
     public Sound SetVolumn(double set) throws UnsupportedAudioFileException, IOException {
         double ratio = 1 + set;
-        short buffer[] = this.getShortRepresentation();
+        short[] buffer = this.getShortRepresentation();
         for (int i = 0; i < buffer.length; i++) {
-
             buffer[i] = (short) (buffer[i] * ratio);
         }
 
@@ -171,23 +231,24 @@ public class Sound {
     public Sound Reverberation() throws UnsupportedAudioFileException, IOException {
         Sound raw2 = this;
         Sound raw1 = this;
+        Sound result;
 
-        raw2.addSound(raw1.echo(700, 0.03));
-        raw2.addSound(raw1.echo(600, 0.05));
-        raw2.addSound(raw1.echo(500, 0.10));
-        raw2.addSound(raw1.echo(400, 0.15));
-        raw2.addSound(raw1.echo(300, 0.20));
-        raw2.addSound(raw1.echo(200, 0.25));
-        raw2.addSound(raw1.echo(100, 0.30));
-        raw2.addSound(raw1.echo(750, 0.01));
-        raw2.addSound(raw1.echo(650, 0.03));
-        raw2.addSound(raw1.echo(550, 0.07));
-        raw2.addSound(raw1.echo(450, 0.12));
-        raw2.addSound(raw1.echo(350, 0.17));
-        raw2.addSound(raw1.echo(250, 0.23));
-        raw2.addSound(raw1.echo(150, 0.27));
+        result = raw2.addSound(raw1.echo(700, 0.03));
+        result = result.addSound(raw1.echo(600, 0.05));
+        result = result.addSound(raw1.echo(500, 0.10));
+        result = result.addSound(raw1.echo(400, 0.15));
+        result = result.addSound(raw1.echo(300, 0.20));
+        result = result.addSound(raw1.echo(200, 0.25));
+        result = result.addSound(raw1.echo(100, 0.30));
+        result = result.addSound(raw1.echo(750, 0.01));
+        result = result.addSound(raw1.echo(650, 0.03));
+        result = result.addSound(raw1.echo(550, 0.07));
+        result = result.addSound(raw1.echo(450, 0.12));
+        result = result.addSound(raw1.echo(350, 0.17));
+        result = result.addSound(raw1.echo(250, 0.23));
+        result = result.addSound(raw1.echo(150, 0.27));
 
-        return raw2;
+        return result;
     }
 
     public Sound addSound(Sound b) throws UnsupportedAudioFileException, IOException {
