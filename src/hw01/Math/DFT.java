@@ -70,14 +70,16 @@ public class DFT {
 
     /**
      *
-     * This program implements the Fast Fourier Transform with the sample code
-     * mentioned below:
+     * This program implements the Fast Fourier Transform for performing DFT
      *
-     * Implements FFT for performing DFT
+     * Adapted from the code shown in the link below
      *
-     * @see http://bbs.csdn.net/topics/390785412
+     * @see
+     * <a href="http://bbs.csdn.net/topics/390785412">
+     * http://bbs.csdn.net/topics/390785412</a>
      *
-     * Assumes that the array is of length of power of 2
+     *
+     *
      * @param series An array of complex numbers to perform the DFT
      * @return the result as an array of complex numbers
      */

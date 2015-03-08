@@ -30,7 +30,7 @@ public class genTone {
      * Default audioformat
      */
     private static final AudioFormat toneAudioFormat = new AudioFormat(
-            AudioFormat.Encoding.PCM_UNSIGNED, 44100, 8, 1, 4, 44100, false);
+            AudioFormat.Encoding.PCM_SIGNED, 44100, 8, 1, 4, 44100, false);
 
     /**
      * Generate a pureTone with the given frequency, amplitude, and duration.
@@ -44,17 +44,7 @@ public class genTone {
      */
     public static Sound generatePureToneAsSound(double freq, double amplitude, double duration, ToneType toneType) throws UnsupportedAudioFileException {
         byte[] rawWave = genTone.generatePureTone(freq, amplitude, duration, toneType);
-        byte[] unsignedRawWave = new byte[rawWave.length];
-        byte min = Byte.MAX_VALUE;
-        for (byte x : rawWave) {
-            if (x < min) {
-                min = x;
-            }
-        }
-        for (int i = 0; i < rawWave.length; ++i) {
-            unsignedRawWave[i] = (byte) (rawWave[i] - min);
-        }
-        return genTone.translateToSound(unsignedRawWave);
+        return genTone.translateToSound(rawWave);
     }
 
     /**

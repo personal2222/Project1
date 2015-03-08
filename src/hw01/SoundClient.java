@@ -5,14 +5,14 @@
  */
 package hw01;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.ByteBuffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.sound.sampled.AudioFormat;
-import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -22,9 +22,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundClient {
 
-    private static Object Bytebuffer;
+    private static final Path tempTonePath = Paths.get("./tempFile/pureTone");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         try {
             selectionMenu();
@@ -60,15 +60,33 @@ public class SoundClient {
     public static void generateToneMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         System.out.println("Please specify the the frequency, amplitude and the duration of the pure tone you want to generate.");
         double freq, amplitude, duration = 0;
-        Scanner in = new Scanner(System.in);
         System.out.println("Please give the frequency of the generated tone in Hz.");
+        freq = askToneFrequency();
+        amplitude = askToneAmplitude();
+        duration = askToneDuration();
+        System.out.printf(
+                "Now generating a pure tone with frequency: %.3fHz, amplitude: %.3f, and duration %.3fs", freq, amplitude, duration);
+
+        System.out.println(
+                "What type of wave do you want to generate?\n1 for sine wave\n2 for square wave\n3 for sawtooth wave.");
+        Sound toneSound = warpToneWaveAsSound(genToneAsSpecified(freq, amplitude, duration));
+        playOrSaveTone(toneSound, duration);
+    }
+
+    private static double askToneFrequency() {
+        Scanner in = new Scanner(System.in);
+        double freq;
         while (!in.hasNextDouble()) {
             in = new Scanner(System.in);
             System.out.println("We can only take double numbers as frequency, please try again.");
         }
-
         freq = in.nextDouble();
+        return freq;
+    }
 
+    private static double askToneAmplitude() {
+        double amplitude = 0;
+        Scanner in;
         while (true) {
             in = new Scanner(System.in);
             System.out.println("Please give the amplitude of the generated tone. The amplitude can only be from 0 to 1.");
@@ -83,7 +101,12 @@ public class SoundClient {
                 System.out.println("We can only take double numbers as amplitude, please try again.");
             }
         }
+        return amplitude;
+    }
 
+    private static double askToneDuration() {
+        double duration = 0;
+        Scanner in;
         while (true) {
             in = new Scanner(System.in);
             System.out.println("Please give the duration of the generated tone in seconds.");
@@ -94,14 +117,12 @@ public class SoundClient {
                 System.out.println("We can only take double numbers as duration, please try again.");
             }
         }
+        return duration;
+    }
 
-        System.out.printf(
-                "Now generating a pure tone with frequency: %.3fHz, amplitude: %.3f, and duration %.3fs", freq, amplitude, duration);
-        int choice = 0;
+    private static byte[] genToneAsSpecified(double freq, double amplitude, double duration) {
         byte[] toneWave = new byte[1];
-
-        System.out.println(
-                "What type of wave do you want to generate?\n1 for sine wave\n2 for square wave\n3 for sawtooth wave.");
+        Scanner in;
         while (true) {
             in = new Scanner(System.in);
             if (in.hasNextInt()) {
@@ -117,17 +138,66 @@ public class SoundClient {
                         break;
                     default:
                         System.out.println("We can only take intergers from 1 to 3 as input, please try again.");
+                        continue;
                 }
                 break;
             } else {
                 System.out.println("We can only take intergers from 1 to 3 as input, please try again.");
             }
         }
-        WaveManager.write("./testTone.wav", ByteBuffer.wrap(toneWave).asShortBuffer(), new AudioFormat(
-                          PCM_SIGNED, 44100, 8, 1, 4, 44100, false));
+        return toneWave;
+    }
+
+    private static Sound warpToneWaveAsSound(byte[] toneWave) throws IOException, UnsupportedAudioFileException {
         Sound pureTone = genTone.translateToSound(toneWave);
-        SoundIO.write(pureTone, "./testTone");
-        pureTone.play();
+        File toneFile = new File(tempTonePath.toUri());
+        toneFile.getParentFile().mkdirs();
+        SoundIO.write(pureTone, toneFile);
+        pureTone = null;
+        Sound toneSound = new Sound(tempTonePath.toString());
+        return toneSound;
+    }
+
+    private static void playOrSaveTone(Sound toneSound, double duration) throws IOException, InterruptedException, LineUnavailableException {
+        Scanner in;
+        System.out.println("Tone generated successfully.");
+        while (true) {
+            System.out.println("What do you want to do next?");
+            System.out.println("1 for play the generated tone\n2 for save it as a file and exit\n0 for exit");
+            in = new Scanner(System.in);
+            if (in.hasNextInt()) {
+                int usrChoice = in.nextInt();
+                if (usrChoice == 1) {
+                    toneSound.play(duration);
+                } else if (usrChoice == 2) {
+                    writePureToneOut(toneSound);
+                    break;
+                } else if (usrChoice == 0) {
+                    break;
+                } else {
+                    System.out.println("Please enter 1, 2 or 0");
+                    continue;
+                }
+            } else {
+                System.out.println("Please enter 1, 2 or 0");
+            }
+        }
+    }
+
+    private static void writePureToneOut(Sound toneSound) throws IOException {
+        Scanner in = new Scanner(System.in);
+        while (true) {
+            System.out.println("Please enter the path that you want to store the file");
+            String path = in.next();
+            try {
+                File destinationFile = new File(path);
+                destinationFile.getParentFile().mkdirs();
+                SoundIO.write(toneSound, destinationFile);
+                break;
+            } catch (IOException ioe) {
+                System.out.println("Cannot write file to the given path, please check the path and try again.");
+            }
+        }
     }
 
     public static void process() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
@@ -167,10 +237,8 @@ public class SoundClient {
                         outprintsetting(temp2);
                     case 7:
                         outprintsetting(sound);
-
                 }
             }
-
         }
     }
 

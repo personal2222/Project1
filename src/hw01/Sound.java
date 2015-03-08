@@ -63,14 +63,16 @@ public class Sound {
         return af;
     }
 
-    public void play(long playtime) throws LineUnavailableException, IOException, InterruptedException {
+    public void play(double playtime) throws LineUnavailableException, IOException, InterruptedException {
 
         try (AudioInputStream out = this.getAIS()) {
             Clip clip = AudioSystem.getClip();
             clip.open(out);
             clip.start();
-            Thread.sleep(playtime);
+            Thread.sleep((long) (playtime * 1000));
             clip.stop();
+            clip.close();
+            out.close();
         }
 
     }
@@ -83,7 +85,10 @@ public class Sound {
             clip.start();
             Thread.sleep(clip.getMicrosecondLength() / 1000);
             clip.stop();
+            clip.close();
+            out.close();
         }
+
     }
 
     /**

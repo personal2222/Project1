@@ -37,9 +37,11 @@ public class SoundIO {
         int byteLength = (int) audioStream.getFrameLength() * audioStream.getFormat().getFrameSize();
         rawWave = new byte[byteLength];
         audioStream.read(rawWave);
+        AudioFormat soundFormat = audioStream.getFormat();
         ByteBuffer a = ByteBuffer.wrap(rawWave);
         ShortBuffer b = a.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-        return new Sound(b, audioStream.getFormat());
+        audioStream.close();
+        return new Sound(b, soundFormat);
     }
 
     /**
