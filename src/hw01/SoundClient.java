@@ -82,6 +82,111 @@ public class SoundClient {
     }
 
     /**
+     * Process the audio file read.
+     *
+     * @throws MalformedURLException
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     * @throws LineUnavailableException
+     * @throws InterruptedException
+     */
+    private static void process() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
+        while (true) {
+            System.out.println("PLS enter the audiofile's address to process. Type 0 to exit");
+            Scanner play = new Scanner(System.in);
+            String fileaddress = play.nextLine();
+            if ("0".equals(fileaddress)) {
+                break;
+            }
+            Sound sound = SoundIO.read(fileaddress);
+            while (true) {
+                System.out.println("What do you want to do with this sound file?");
+                System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation 5:shrink the file 6: change a file 7: To save the file");
+                int select = play.nextInt();
+                if (select == 6) {
+                    break;
+                }
+                switch (select) {
+                    case 1:
+                        sound.play();
+                        break;
+                    case 2:
+                        volumnsetting(sound);
+                        break;
+                    case 3:
+                        Sound temp = echosetting(sound);
+                        temp.play();
+                        outprintsetting(temp);
+                    case 4:
+                        Sound temp1 = sound.Reverberation();
+                        temp1.play();
+                        outprintsetting(temp1);
+                    case 5:
+                        Sound temp2 = sound.downSamplebytwo();
+                        temp2.play();
+                        outprintsetting(temp2);
+                    case 7:
+                        outprintsetting(sound);
+                }
+            }
+        }
+    }
+
+    /**
+     * Set the volume
+     *
+     * @param s
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
+    private static void volumnsetting(Sound s) throws UnsupportedAudioFileException, IOException {
+        System.out.println("What volumn do you want to add or minus?");
+        Scanner volumn = new Scanner(System.in);
+        double addvalue = volumn.nextDouble();
+        s.SetthisVolumn(addvalue);
+    }
+
+    /**
+     * Save the modified audio to a path
+     *
+     * @param s
+     * @throws IOException
+     */
+    private static void outprintsetting(Sound s) throws IOException {
+        while (true) {
+            System.out.println("Give me a file path to store the file.");
+            try {
+                Scanner out = new Scanner(System.in);
+                String filepath = out.nextLine();
+                System.out.println("Saving...");
+                SoundIO.write(s, filepath);
+                System.out.print("Saved, the path is " + filepath);
+                break;
+            } catch (IOException ioe) {
+                System.out.println("Cannot write file to the given path, please check the path and try again.");
+            }
+        }
+    }
+
+    /**
+     * make a echo of the sound
+     *
+     * @param s
+     * @return
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
+    private static Sound echosetting(Sound s) throws UnsupportedAudioFileException, IOException {
+        System.out.println("To do echo effect, pls enter a delay value you want to use");
+        Scanner echo = new Scanner(System.in);
+        int delay = echo.nextInt();
+        System.out.println("pls enter a decay value you want to use");
+        double decay = echo.nextDouble();
+        return s.echo(delay, decay);
+
+    }
+
+    /**
      * Menu used for generate a pure tone.
      *
      * @throws UnsupportedAudioFileException
@@ -204,6 +309,14 @@ public class SoundClient {
         return toneWave;
     }
 
+    /**
+     * warp the byte wave to a sound object.
+     *
+     * @param toneWave
+     * @return
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     */
     private static Sound warpToneWaveAsSound(byte[] toneWave) throws IOException, UnsupportedAudioFileException {
         Sound pureTone = genTone.translateToSound(toneWave);
         File toneFile = new File(tempTonePath.toUri());
@@ -215,9 +328,9 @@ public class SoundClient {
     }
 
     /**
+     * Play or save the generated tone
      *
-     *
-     * @see
+     * @see For creating a path that is not existed in the file system.
      * http://stackoverflow.com/questions/2833853/create-whole-path-automatically-when-writing-to-a-new-file
      *
      * @param toneSound
@@ -252,6 +365,12 @@ public class SoundClient {
         }
     }
 
+    /**
+     * Write the tone generated out to a file
+     *
+     * @param toneSound the Sound object representing the tone.
+     * @throws IOException
+     */
     private static void writePureToneOut(Sound toneSound) throws IOException {
         Scanner in = new Scanner(System.in);
         while (true) {
@@ -266,74 +385,6 @@ public class SoundClient {
                 System.out.println("Cannot write file to the given path, please check the path and try again.");
             }
         }
-    }
-
-    private static void process() throws MalformedURLException, IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
-        while (true) {
-            System.out.println("PLS enter the audiofile's address to process. Type 0 to exit");
-            Scanner play = new Scanner(System.in);
-            String fileaddress = play.nextLine();
-            if ("0".equals(fileaddress)) {
-                break;
-            }
-            Sound sound = SoundIO.read(fileaddress);
-            while (true) {
-                System.out.println("What do you want to do with this sound file?");
-                System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation 5:shrink the file 6: change a file 7: To save the file");
-                int select = play.nextInt();
-                if (select == 6) {
-                    break;
-                }
-                switch (select) {
-                    case 1:
-                        sound.play();
-                        break;
-                    case 2:
-                        volumnsetting(sound);
-                        break;
-                    case 3:
-                        Sound temp = echosetting(sound);
-                        temp.play();
-                        outprintsetting(temp);
-                    case 4:
-                        Sound temp1 = sound.Reverberation();
-                        temp1.play();
-                        outprintsetting(temp1);
-                    case 5:
-                        Sound temp2 = sound.downSamplebytwo();
-                        temp2.play();
-                        outprintsetting(temp2);
-                    case 7:
-                        outprintsetting(sound);
-                }
-            }
-        }
-    }
-
-    private static void volumnsetting(Sound s) throws UnsupportedAudioFileException, IOException {
-        System.out.println("What volumn do you want to add or minus?");
-        Scanner volumn = new Scanner(System.in);
-        double addvalue = volumn.nextDouble();
-        s.SetthisVolumn(addvalue);
-    }
-
-    private static void outprintsetting(Sound s) throws IOException {
-        System.out.println("Give me a file path to store the file.");
-        Scanner out = new Scanner(System.in);
-        String filepath = out.nextLine();
-        System.out.println("Saving...");
-        SoundIO.write(s, filepath);
-        System.out.print("Saved, the path is " + filepath);
-    }
-
-    private static Sound echosetting(Sound s) throws UnsupportedAudioFileException, IOException {
-        System.out.println("To do echo effect, pls enter a delay value you want to use");
-        Scanner echo = new Scanner(System.in);
-        int delay = echo.nextInt();
-        System.out.println("pls enter a decay value you want to use");
-        double decay = echo.nextDouble();
-        return s.echo(delay, decay);
-
     }
 
 }

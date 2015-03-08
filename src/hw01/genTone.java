@@ -42,20 +42,6 @@ public class genTone {
     private static final AudioFormat toneAudioFormat = new AudioFormat(
             AudioFormat.Encoding.PCM_SIGNED, 44100, 8, 1, 4, 44100, false);
 
-//    /**
-//     * Generate a pureTone with the given frequency, amplitude, and duration.
-//     *
-//     * @param freq
-//     * @param amplitude
-//     * @param duration
-//     * @param toneType
-//     * @return A Sound object contains the generated pureTone.
-//     * @throws UnsupportedAudioFileException
-//     */
-//    public static Sound generatePureToneAsSound(double freq, double amplitude, double duration, ToneType toneType) throws UnsupportedAudioFileException {
-//        byte[] rawWave = genTone.generatePureTone(freq, amplitude, duration, toneType);
-//        return genTone.translateToSound(rawWave);
-//    }
     /**
      * Generate a pureTone with the given frequency, amplitude, and duration.
      *
