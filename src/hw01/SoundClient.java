@@ -15,6 +15,7 @@
  */
 package hw01;
 
+import hw01.Math.LengthNotAPowerOfTwoException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -40,7 +41,7 @@ public class SoundClient {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, LengthNotAPowerOfTwoException {
         try {
             selectionMenu();
         } catch (IOException ex) {
@@ -63,21 +64,31 @@ public class SoundClient {
      * @throws LineUnavailableException
      * @throws InterruptedException
      */
-    private static void selectionMenu() throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
-        System.out.println("Pls select what do you want ?");
-        System.out.println("Select 1 to process a file");
-        System.out.println("Select 2 to generate a tone");
-        System.out.println("Select 3 to exit");
-        Scanner select = new Scanner(System.in);
-        switch (select.nextInt()) {
-            case 1:
-                process();
-                break;
-            case 2:
-                generateToneMenu();
-                break;
-            case 3:
-                break;
+    private static void selectionMenu() throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException, LengthNotAPowerOfTwoException {
+        System.out.println("Please select what do you want to do");
+        OUTERMOST:
+        while (true) {
+            System.out.println("Select 1 to process a file");
+            System.out.println("Select 2 to generate a tone");
+            System.out.println("Select 3 to exit");
+            Scanner select = new Scanner(System.in);
+            if (!select.hasNextInt()) {
+                System.out.println("We can only handle options from 1 to 3, please try again");
+                continue;
+            }
+            switch (select.nextInt()) {
+                case 1:
+                    process();
+                    break OUTERMOST;
+                case 2:
+                    generateToneMenu();
+                    break OUTERMOST;
+                case 3:
+                    System.out.println("Goodbye!");
+                    break OUTERMOST;
+                default:
+                    System.out.println("We can only handle options from 1 to 3, please try again");
+            }
         }
     }
 
@@ -96,7 +107,7 @@ public class SoundClient {
      * @throws LineUnavailableException
      * @throws InterruptedException
      */
-    private static void process() throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
+    private static void process() throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException, LengthNotAPowerOfTwoException {
         OUTERMOST:
         while (true) {
             Scanner in = new Scanner(System.in);
@@ -119,7 +130,11 @@ public class SoundClient {
                     continue;
                 }
             }
-            modifySouond(sound);
+            boolean EXIT = modifySouond(sound);
+            if (EXIT) {
+                System.out.println("Goodbye!");
+                break;
+            }
         }
     }
 
@@ -132,25 +147,21 @@ public class SoundClient {
      * @throws UnsupportedAudioFileException
      * @throws IOException
      */
-    private static void modifySouond(Sound sound) throws LineUnavailableException, InterruptedException, UnsupportedAudioFileException, IOException {
+    private static boolean modifySouond(Sound sound) throws LineUnavailableException, InterruptedException, UnsupportedAudioFileException, IOException, LengthNotAPowerOfTwoException {
         Scanner in;
         int select = 0;
         while (true) {
             System.out.println("What do you want to do with this sound file?");
-            System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation 5:shrink the file 6: change a file 7: To save the file");
+            System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation 5:shrink the file\n6: change a file 7: To save the file, 8: To exit, 0:Perform a DFT of this sound");
             in = new Scanner(System.in);
             if (in.hasNextInt()) {
                 select = in.nextInt();
-                break;
+            } else {
+                System.out.println("Please give 1 to 7 as input.");
+                continue;
             }
-            System.out.println("Please give 1 to 6 as input.");
-        }
-        while (true) {
-            in = new Scanner(System.in);
-            System.out.println("What do you want to do with this sound file?");
-            System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation 5:shrink the file 6: change a file 7: To save the file");
             if (select == 6) {
-                break;
+                return false;
             }
             switch (select) {
                 case 1:
@@ -209,8 +220,13 @@ public class SoundClient {
                 case 7:
                     outprintsetting(sound);
                     break;
+                case 8:
+                    return true;
+                case 0:
+                    performDFT(sound);
+                    break;
                 default:
-                    System.out.println("Please give 1 to 6 as input.");
+                    System.out.println("Please give 1 to 7 as input.");
             }
         }
     }
@@ -223,10 +239,17 @@ public class SoundClient {
      * @throws IOException
      */
     private static void volumnsetting(Sound s) throws UnsupportedAudioFileException, IOException {
-        System.out.println("What volumn do you want to add or minus?");
-        Scanner volumn = new Scanner(System.in);
-        double addvalue = volumn.nextDouble();
-        s.SetthisVolumn(addvalue);
+        while (true) {
+            System.out.println("What volumn do you want to add or minus?");
+            Scanner volumn = new Scanner(System.in);
+            if (!volumn.hasNextDouble()) {
+                System.out.println("Plaese input a number as input.");
+                continue;
+            }
+            double addvalue = volumn.nextDouble();
+            s.SetthisVolumn(addvalue);
+            break;
+        }
     }
 
     /**
@@ -260,11 +283,28 @@ public class SoundClient {
      * @throws IOException
      */
     private static Sound echosetting(Sound s) throws UnsupportedAudioFileException {
-        System.out.println("To do echo effect, pls enter a delay value you want to use");
-        Scanner echo = new Scanner(System.in);
-        int delay = echo.nextInt();
-        System.out.println("pls enter a decay value you want to use");
-        double decay = echo.nextDouble();
+        int delay = 0;
+        double decay = 0;
+        while (true) {
+            System.out.println("To do echo effect, please enter a delay value you want to use in ms");
+            Scanner echo = new Scanner(System.in);
+            if (!echo.hasNextInt()) {
+                System.out.println("Please input an integer for delay value");
+                continue;
+            }
+            delay = echo.nextInt();
+            break;
+        }
+        while (true) {
+            System.out.println("Please enter a decay value you want to use");
+            Scanner echo = new Scanner(System.in);
+            if (!echo.hasNextDouble()) {
+                System.out.println("Please input an number for decay value");
+                continue;
+            }
+            decay = echo.nextDouble();
+            break;
+        }
         return s.echo(delay, decay);
     }
 
@@ -276,20 +316,26 @@ public class SoundClient {
      * @throws IOException
      * @throws InterruptedException
      */
-    private static void generateToneMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
-        System.out.println("Please specify the the frequency, amplitude and the duration of the pure tone you want to generate.");
-        double freq, amplitude, duration = 0;
-        System.out.println("Please give the frequency of the generated tone in Hz.");
-        freq = askToneFrequency();
-        amplitude = askToneAmplitude();
-        duration = askToneDuration();
-        System.out.printf(
-                "Now generating a pure tone with frequency: %.3fHz, amplitude: %.3f, and duration %.3fs", freq, amplitude, duration);
+    private static void generateToneMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException, LengthNotAPowerOfTwoException {
+        while (true) {
+            System.out.println("Please specify the the frequency, amplitude and the duration of the pure tone you want to generate.");
+            double freq, amplitude, duration = 0;
+            System.out.println("Please give the frequency of the generated tone in Hz.");
+            freq = askToneFrequency();
+            amplitude = askToneAmplitude();
+            duration = askToneDuration();
+            System.out.printf(
+                    "Now generating a pure tone with frequency: %.3fHz, amplitude: %.3f, and duration %.3fs\n", freq, amplitude, duration);
 
-        System.out.println(
-                "What type of wave do you want to generate?\n1 for sine wave\n2 for square wave\n3 for sawtooth wave.");
-        Sound toneSound = warpToneWaveAsSound(genToneAsSpecified(freq, amplitude, duration));
-        playOrSaveTone(toneSound, duration);
+            System.out.println(
+                    "What type of wave do you want to generate?\n1 for sine wave\n2 for square wave\n3 for sawtooth wave.");
+            Sound toneSound = warpToneWaveAsSound(genToneAsSpecified(freq, amplitude, duration));
+            boolean EXIT = modifyTone(toneSound, duration);
+            if (EXIT) {
+                System.out.println("Goodbye!");
+                break;
+            }
+        }
     }
 
     /**
@@ -363,8 +409,8 @@ public class SoundClient {
      * @param duration Tone duration
      * @return an byte array of the generated new tone.
      */
-    private static byte[] genToneAsSpecified(double freq, double amplitude, double duration) {
-        byte[] toneWave = new byte[1];
+    private static short[] genToneAsSpecified(double freq, double amplitude, double duration) {
+        short[] toneWave = new short[1];
         Scanner in;
         while (true) {
             in = new Scanner(System.in);
@@ -399,7 +445,7 @@ public class SoundClient {
      * @throws IOException
      * @throws UnsupportedAudioFileException
      */
-    private static Sound warpToneWaveAsSound(byte[] toneWave) throws IOException, UnsupportedAudioFileException {
+    private static Sound warpToneWaveAsSound(short[] toneWave) throws IOException, UnsupportedAudioFileException {
         Sound pureTone = genTone.translateToSound(toneWave);
         File toneFile = new File(tempTonePath.toUri());
         toneFile.getParentFile().mkdirs();
@@ -410,64 +456,107 @@ public class SoundClient {
     }
 
     /**
-     * Play or save the generated tone
+     * Modify tone menu
      *
-     * @see For creating a path that is not existed in the file system.
-     * <a href="http://stackoverflow.com/questions/2833853/create-whole-path-automatically-when-writing-to-a-new-file">
-     * http://stackoverflow.com/questions/2833853/create-whole-path-automatically-when-writing-to-a-new-file</a>
-     *
-     * @param toneSound
-     * @param duration
-     * @throws IOException
-     * @throws InterruptedException
+     * @param sound a sound object to be modified
      * @throws LineUnavailableException
+     * @throws InterruptedException
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
      */
-    private static void playOrSaveTone(Sound toneSound, double duration) throws IOException, InterruptedException, LineUnavailableException {
-        Scanner in;
-        System.out.println("Tone generated successfully.");
+    private static boolean modifyTone(Sound tone, double duration) throws LineUnavailableException, InterruptedException, UnsupportedAudioFileException, IOException, LengthNotAPowerOfTwoException {
+        int select = 0;
         while (true) {
-            System.out.println("What do you want to do next?");
-            System.out.println("1 for play the generated tone\n2 for save it as a file and exit\n0 for exit");
-            in = new Scanner(System.in);
+            System.out.println("What do you want to do with this sound file?");
+            System.out.println("1: play 2:adjest volumn 3: add an echo 4: Add reverberation\n5:shrink the file 6: To regenerate a tone 7: To save the file 8: To exit 0: To perform DFT");
+            Scanner in = new Scanner(System.in);
             if (in.hasNextInt()) {
-                int usrChoice = in.nextInt();
-                if (usrChoice == 1) {
-                    toneSound.play(duration);
-                } else if (usrChoice == 2) {
-                    writePureToneOut(toneSound);
-                    break;
-                } else if (usrChoice == 0) {
-                    break;
-                } else {
-                    System.out.println("Please enter 1, 2 or 0");
-                    continue;
-                }
+                select = in.nextInt();
             } else {
-                System.out.println("Please enter 1, 2 or 0");
+                System.out.println("Please give 1 to 7 as input.");
+                continue;
+            }
+            if (select == 6) {
+                return false;
+            }
+            switch (select) {
+                case 1:
+                    try {
+                        tone.play(duration);
+                        break;
+                    } catch (LineUnavailableException lue) {
+                        System.err.println("Line Unavailable; program terminates.");
+                        throw lue;
+                    } catch (InterruptedException ie) {
+                        System.err.println("Sound interrupted");
+                        throw ie;
+                    }
+                case 2:
+                    volumnsetting(tone);
+                    break;
+                case 3:
+                    Sound temp = echosetting(tone);
+                    try {
+                        temp.play();
+                    } catch (LineUnavailableException lue) {
+                        System.err.println("Line Unavailable; program terminates.");
+                        throw lue;
+                    } catch (InterruptedException ie) {
+                        System.err.println("Sound interrupted");
+                        throw ie;
+                    }
+                    outprintsetting(temp);
+                    break;
+                case 4:
+                    Sound temp1 = tone.Reverberation();
+                    try {
+                        temp1.play();
+                    } catch (LineUnavailableException lue) {
+                        System.err.println("Line Unavailable; program terminates.");
+                        throw lue;
+                    } catch (InterruptedException ie) {
+                        System.err.println("Sound interrupted");
+                        throw ie;
+                    }
+                    outprintsetting(temp1);
+                    break;
+                case 5:
+                    Sound temp2 = tone.downSamplebytwo();
+                    try {
+                        temp2.play();
+                    } catch (LineUnavailableException lue) {
+                        System.err.println("Line Unavailable; program terminates.");
+                        throw lue;
+                    } catch (InterruptedException ie) {
+                        System.err.println("Sound interrupted");
+                        throw ie;
+                    }
+                    outprintsetting(temp2);
+                    break;
+                case 7:
+                    outprintsetting(tone);
+                    break;
+                case 8:
+                    return true;
+                case 0:
+                    performDFT(tone);
+                    break;
+                default:
+                    System.out.println("Please give 1 to 7 as input.");
             }
         }
     }
 
     /**
-     * Write the tone generated out to a file
+     * Perform a DFT for a sound object
      *
-     * @param toneSound the Sound object representing the tone.
-     * @throws IOException
+     * @param sound
+     * @throws LengthNotAPowerOfTwoException
      */
-    private static void writePureToneOut(Sound toneSound) throws IOException {
-        Scanner in = new Scanner(System.in);
-        while (true) {
-            System.out.println("Please enter the path that you want to store the file");
-            String path = in.next();
-            try {
-                File destinationFile = new File(path);
-                destinationFile.getParentFile().mkdirs();
-                SoundIO.write(toneSound, destinationFile);
-                break;
-            } catch (IOException ioe) {
-                System.out.println("Cannot write file to the given path, please check the path and try again.");
-            }
-        }
+    private static void performDFT(Sound sound) throws LengthNotAPowerOfTwoException {
+        System.out.println("Now performing DFT to the given sound");
+        System.out.println("We will print out the frequency after the transformation.\nNow starting the transformation.");
+        double resultFreq = hw01.Math.DFT.DFTResult(sound);
+        System.out.println(String.format("Transform finished. The result is: %.2fhz", resultFreq));
     }
-
 }

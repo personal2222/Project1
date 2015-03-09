@@ -15,7 +15,7 @@
  */
 package hw01;
 
-import java.nio.ShortBuffer;
+import java.nio.ByteBuffer;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -49,9 +49,9 @@ public class genTone {
      * @param amplitude
      * @param duration
      * @param toneType
-     * @return a short array representing the generated frequency
+     * @return a byte array representing the generated frequency
      */
-    public static short[] generatePureTone(double freq, double amplitude, double duration, ToneType toneType) {
+    public static byte[] generatePureTone(double freq, double amplitude, double duration, ToneType toneType) {
         if (toneType == ToneType.SINE) {
             return gennToneSin(freq, amplitude, duration);
         } else if (toneType == ToneType.SAWTOOTH) {
@@ -64,14 +64,14 @@ public class genTone {
     /**
      * Translate a short array to sound using the default audioformat
      *
-     * @param a, a short array representing the sound
-     * @return a Sound object contains the short array as the raw sound wave
+     * @param a, a byte array representing the sound
+     * @return a Sound object contains the byte array as the raw sound wave
      * @throws UnsupportedAudioFileException
      */
-    public static Sound translateToSound(short[] a) throws UnsupportedAudioFileException {
+    public static Sound translateToSound(byte[] a) throws UnsupportedAudioFileException {
 
-        ShortBuffer buffer = ShortBuffer.wrap(a);
-        return new Sound(buffer, toneAudioFormat);
+        ByteBuffer buffer = ByteBuffer.wrap(a);
+        return new Sound(buffer.asShortBuffer(), toneAudioFormat);
     }
 
     /**
@@ -81,16 +81,16 @@ public class genTone {
      * @param freq
      * @param amplitude
      * @param duration
-     * @return a short array representing the generated frequency
+     * @return a byte array representing the generated frequency
      */
-    private static short[] gennToneSquare(double freq, double amplitude, double duration) {
+    private static byte[] gennToneSquare(double freq, double amplitude, double duration) {
         int totSlot = (int) (duration * genTone.stdFreq);
         int slotsPerWave = (int) (genTone.stdFreq / freq);
-        short actualAmplitude = (short) (amplitude * Short.MAX_VALUE / 2);
-        short[] generatedWave = new short[totSlot];
+        byte actualAmplitude = (byte) (amplitude * Byte.MAX_VALUE / 2);
+        byte[] generatedWave = new byte[totSlot];
         for (int i = 0; i < (generatedWave.length); ++i) {
             if ((i % slotsPerWave) < (slotsPerWave / (2.0))) {
-                generatedWave[i] = (short) (-actualAmplitude);
+                generatedWave[i] = (byte) (-actualAmplitude);
             } else {
                 generatedWave[i] = actualAmplitude;
             }
@@ -105,22 +105,22 @@ public class genTone {
      * @param freq
      * @param amplitude
      * @param duration
-     * @return a short array representing the generated frequency
+     * @return a byte array representing the generated frequency
      */
-    private static short[] gennToneSaw(double freq, double amplitude, double duration) {
+    private static byte[] gennToneSaw(double freq, double amplitude, double duration) {
         int totSlot = (int) (duration * genTone.stdFreq);
         int slotsPerWave = (int) (genTone.stdFreq / freq);
         int halfWave = slotsPerWave / 2;
-        short actualAmplitude = (short) (amplitude * Short.MAX_VALUE / 2);
-        short ampIncreasePerSlot = (short) (2 * actualAmplitude / halfWave);
-        short[] generatedWave = new short[totSlot];
+        byte actualAmplitude = (byte) (amplitude * Byte.MAX_VALUE / 2);
+        byte ampIncreasePerSlot = (byte) (2 * actualAmplitude / halfWave);
+        byte[] generatedWave = new byte[totSlot];
         for (int i = 0; i < (generatedWave.length); ++i) {
             int indexInHalfWave = i % halfWave;
             int indexOfHalfWave = i / halfWave;
             if (((indexInHalfWave) < (halfWave / (2.0))) && indexOfHalfWave % 2 == 0) {
-                generatedWave[i] = (short) (-actualAmplitude + indexInHalfWave * ampIncreasePerSlot);
+                generatedWave[i] = (byte) (-actualAmplitude + indexInHalfWave * ampIncreasePerSlot);
             } else {
-                generatedWave[i] = (short) (actualAmplitude - indexInHalfWave * ampIncreasePerSlot);
+                generatedWave[i] = (byte) (actualAmplitude - indexInHalfWave * ampIncreasePerSlot);
             }
         }
         return generatedWave;
@@ -133,15 +133,15 @@ public class genTone {
      * @param freq
      * @param amplitude
      * @param duration
-     * @return a short array representing the generated frequency
+     * @return a byte array representing the generated frequency
      */
-    private static short[] gennToneSin(double freq, double amplitude, double duration) {
+    private static byte[] gennToneSin(double freq, double amplitude, double duration) {
 
         int totSlot = (int) (duration * genTone.stdFreq);
-        short actualAmplitude = (short) (amplitude * Short.MAX_VALUE / 2);
-        short[] generatedWave = new short[totSlot];
+        byte actualAmplitude = (byte) (amplitude * Byte.MAX_VALUE / 2);
+        byte[] generatedWave = new byte[totSlot];
         for (int i = 0; i < (generatedWave.length); ++i) {
-            generatedWave[i] = (short) (actualAmplitude * Math.sin(2 * Math.PI * freq * i / genTone.stdFreq));
+            generatedWave[i] = (byte) (actualAmplitude * Math.sin(2 * Math.PI * freq * i / genTone.stdFreq));
         }
         return generatedWave;
     }

@@ -165,16 +165,27 @@ public class DFT {
         return new Complex(0, imag);
     }
 
-}
-
-/**
- * Throwed when the length of the array used for DFT is not a power of 2
- *
- * @author Zhengri Fan
- */
-class LengthNotAPowerOfTwoException extends Exception {
-
-    public LengthNotAPowerOfTwoException(String errMsg) {
-        super(errMsg);
+    /**
+     *
+     *
+     * @see http://www.dosits.org/science/soundmeasurement/soundshear/
+     * @param sound
+     * @return
+     * @throws LengthNotAPowerOfTwoException
+     */
+    public static double DFTResult(Sound sound) throws LengthNotAPowerOfTwoException {
+        int maxHumanFreq = 20000;
+        Complex[] afterTransform = SoundDFT(sound);
+        double maxMagnitude = Double.MIN_VALUE;
+        int maxIndex = 0;
+        int endingIndex = (int) (maxHumanFreq * afterTransform.length / sound.getAf().getSampleRate());
+        for (int i = 0; i < endingIndex; ++i) {
+            if (afterTransform[i].magnitude() > maxMagnitude) {
+                maxMagnitude = afterTransform[i].magnitude();
+                maxIndex = i;
+            }
+        }
+        return maxIndex * sound.getAf().getSampleRate() / afterTransform.length;
     }
+
 }

@@ -173,6 +173,7 @@ public class Sound {
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(in)) {
             out = new AudioInputStream(byteStream, this.af, byteLength);
         }
+
         return out;
     }
 
