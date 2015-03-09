@@ -175,11 +175,13 @@ public class DFT {
      */
     public static double DFTResult(Sound sound) throws LengthNotAPowerOfTwoException {
         int maxHumanFreq = 20000;
+        int minHumanFreq = 20;
         Complex[] afterTransform = SoundDFT(sound);
         double maxMagnitude = Double.MIN_VALUE;
         int maxIndex = 0;
+        int startingIndex = (int) (minHumanFreq * afterTransform.length / sound.getAf().getSampleRate());
         int endingIndex = (int) (maxHumanFreq * afterTransform.length / sound.getAf().getSampleRate());
-        for (int i = 0; i < endingIndex; ++i) {
+        for (int i = startingIndex; i < endingIndex; ++i) {
             if (afterTransform[i].magnitude() > maxMagnitude) {
                 maxMagnitude = afterTransform[i].magnitude();
                 maxIndex = i;

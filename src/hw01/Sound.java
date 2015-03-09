@@ -144,7 +144,7 @@ public class Sound {
             Clip clip = AudioSystem.getClip();
             clip.open(out);
             clip.start();
-            Thread.sleep(clip.getMicrosecondLength() / 1000);
+            Thread.sleep(clip.getMicrosecondLength() / 1000 + 1);
             clip.stop();
             clip.close();
             out.close();
@@ -278,24 +278,24 @@ public class Sound {
      * @throws IOException
      */
     public Sound Reverberation() throws UnsupportedAudioFileException, IOException {
-        Sound raw2 = this;
-        Sound raw1 = this;
+        Sound raw2 = new Sound(this.getS(), this.getAf());
+        Sound raw1 = new Sound(this.getS(), this.getAf());
         Sound result;
 
-        result = raw2.addSound(raw1.echo(700, 0.03));
-        result = result.addSound(raw1.echo(600, 0.05));
-        result = result.addSound(raw1.echo(500, 0.10));
-        result = result.addSound(raw1.echo(400, 0.15));
-        result = result.addSound(raw1.echo(300, 0.20));
-        result = result.addSound(raw1.echo(200, 0.25));
-        result = result.addSound(raw1.echo(100, 0.30));
-        result = result.addSound(raw1.echo(750, 0.01));
-        result = result.addSound(raw1.echo(650, 0.03));
-        result = result.addSound(raw1.echo(550, 0.07));
-        result = result.addSound(raw1.echo(450, 0.12));
-        result = result.addSound(raw1.echo(350, 0.17));
-        result = result.addSound(raw1.echo(250, 0.23));
-        result = result.addSound(raw1.echo(150, 0.27));
+        result = raw2.addSound(raw1.echo(100, 0.80));
+        result = result.addSound(raw1.echo(110, 0.70));
+        result = result.addSound(raw1.echo(120, 0.65));
+        result = result.addSound(raw1.echo(130, 0.60));
+        result = result.addSound(raw1.echo(140, 0.55));
+        result = result.addSound(raw1.echo(150, 0.50));
+        result = result.addSound(raw1.echo(160, 0.45));
+        result = result.addSound(raw1.echo(170, 0.40));
+        result = result.addSound(raw1.echo(180, 0.35));
+        result = result.addSound(raw1.echo(190, 0.33));
+        result = result.addSound(raw1.echo(200, 0.30));
+        result = result.addSound(raw1.echo(210, 0.28));
+        result = result.addSound(raw1.echo(220, 0.25));
+        result = result.addSound(raw1.echo(230, 0.2));
 
         return result;
     }
