@@ -123,7 +123,7 @@ public class SoundClient {
                     sound = SoundIO.read(fileaddress);
                     break;
                 } catch (IOException ioe) {
-                    System.out.println("File unavailable to use, please chech the file path and try again");
+                    System.out.println("File unavailable to use, please change the file path and try again");
                     continue;
                 } catch (UnsupportedAudioFileException uafe) {
                     System.out.println("Audio file not supported, please change a file and try again");
