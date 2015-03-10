@@ -8,7 +8,7 @@
  *
  * Project: csci205
  * Package: hw01
- * File: DFT
+ * File: SoundClient
  * Description: Project1
  *
  * ****************************************

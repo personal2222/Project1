@@ -8,7 +8,7 @@
  *
  * Project: csci205
  * Package: hw01.Math
- * File: DFT
+ * File: Complex
  * Description: Project1
  *
  * ****************************************
