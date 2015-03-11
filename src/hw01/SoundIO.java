@@ -40,6 +40,9 @@ public class SoundIO {
      * @return A sound object representing the given audio file
      * @throws IOException
      * @throws UnsupportedAudioFileException
+     * @see
+     * <a href="http://stackoverflow.com/questions/10804852/how-to-convert-short-array-to-byte-array">
+     * http://stackoverflow.com/questions/10804852/how-to-convert-short-array-to-byte-array</a>
      */
     public static Sound read(String Filename) throws IOException, UnsupportedAudioFileException {
         File audioFile = new File(Filename);
