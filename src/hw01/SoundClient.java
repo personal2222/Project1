@@ -41,7 +41,7 @@ public class SoundClient {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException, LengthNotAPowerOfTwoException {
+    public static void main(String[] args) throws LengthNotAPowerOfTwoException {
         try {
             selectionMenu();
         } catch (IOException ex) {
@@ -165,56 +165,24 @@ public class SoundClient {
             }
             switch (select) {
                 case 1:
-                    try {
-                        sound.play();
-                    } catch (LineUnavailableException lue) {
-                        System.err.println("Line Unavailable; program terminates.");
-                        throw lue;
-                    } catch (InterruptedException ie) {
-                        System.err.println("Sound interrupted");
-                        throw ie;
-                    }
+                    playSound(sound);
                     break;
                 case 2:
                     volumnsetting(sound);
                     break;
                 case 3:
                     Sound temp = echosetting(sound);
-                    try {
-                        temp.play();
-                    } catch (LineUnavailableException lue) {
-                        System.err.println("Line Unavailable; program terminates.");
-                        throw lue;
-                    } catch (InterruptedException ie) {
-                        System.err.println("Sound interrupted");
-                        throw ie;
-                    }
+                    playSound(temp);
                     outprintsetting(temp);
                     break;
                 case 4:
-                    Sound temp1 = sound.Reverberation();
-                    try {
-                        temp1.play();
-                    } catch (LineUnavailableException lue) {
-                        System.err.println("Line Unavailable; program terminates.");
-                        throw lue;
-                    } catch (InterruptedException ie) {
-                        System.err.println("Sound interrupted");
-                        throw ie;
-                    }
+                    Sound temp1 = sound.reverberation();
+                    playSound(temp1);
                     outprintsetting(temp1);
                     break;
                 case 5:
                     Sound temp2 = sound.downSamplebytwo();
-                    try {
-                        temp2.play();
-                    } catch (LineUnavailableException lue) {
-                        System.err.println("Line Unavailable; program terminates.");
-                        throw lue;
-                    } catch (InterruptedException ie) {
-                        System.err.println("Sound interrupted");
-                        throw ie;
-                    }
+                    playSound(temp2);
                     outprintsetting(temp2);
                     break;
                 case 7:
@@ -229,6 +197,27 @@ public class SoundClient {
                     System.out.println("Please give 1 to 7 as input.");
             }
         }
+    }
+
+    /**
+     * Play the given sound
+     *
+     * @param sound
+     * @throws LineUnavailableException
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private static void playSound(Sound sound) throws IOException, InterruptedException, LineUnavailableException {
+        try {
+            sound.play();
+        } catch (LineUnavailableException lue) {
+            System.err.println("Line Unavailable; program terminates.");
+            throw lue;
+        } catch (InterruptedException ie) {
+            System.err.println("Sound interrupted");
+            throw ie;
+        }
+        return;
     }
 
     /**
@@ -247,8 +236,13 @@ public class SoundClient {
                 continue;
             }
             double addvalue = volumn.nextDouble();
-            s.SetthisVolumn(addvalue);
-            break;
+            try {
+                s.SetthisVolumn(addvalue);
+                break;
+            } catch (VolumeOutOfRangeException vore) {
+                System.out.println("Volume too large, please try again");
+                continue;
+            }
         }
     }
 
@@ -345,12 +339,19 @@ public class SoundClient {
      */
     private static double askToneFrequency() {
         Scanner in = new Scanner(System.in);
-        double freq;
+        double freq = 0;
         while (!in.hasNextDouble()) {
-            in = new Scanner(System.in);
             System.out.println("We can only take double numbers as frequency, please try again.");
+            System.out.println("Please give the frequency of the generated tone in Hz.");
+            in = new Scanner(System.in);
         }
         freq = in.nextDouble();
+        while (freq < 0) {
+            System.out.println("We can only take frequencies greater than zero, please try again.");
+            System.out.println("Please give the frequency of the generated tone in Hz.");
+            in = new Scanner(System.in);
+            freq = in.nextDouble();
+        }
         return freq;
     }
 
@@ -481,56 +482,24 @@ public class SoundClient {
             }
             switch (select) {
                 case 1:
-                    try {
-                        tone.play(duration);
-                        break;
-                    } catch (LineUnavailableException lue) {
-                        System.err.println("Line Unavailable; program terminates.");
-                        throw lue;
-                    } catch (InterruptedException ie) {
-                        System.err.println("Sound interrupted");
-                        throw ie;
-                    }
+                    playTone(tone, duration);
+                    break;
                 case 2:
                     volumnsetting(tone);
                     break;
                 case 3:
                     Sound temp = echosetting(tone);
-                    try {
-                        temp.play();
-                    } catch (LineUnavailableException lue) {
-                        System.err.println("Line Unavailable; program terminates.");
-                        throw lue;
-                    } catch (InterruptedException ie) {
-                        System.err.println("Sound interrupted");
-                        throw ie;
-                    }
+                    playTone(temp, duration);
                     outprintsetting(temp);
                     break;
                 case 4:
-                    Sound temp1 = tone.Reverberation();
-                    try {
-                        temp1.play();
-                    } catch (LineUnavailableException lue) {
-                        System.err.println("Line Unavailable; program terminates.");
-                        throw lue;
-                    } catch (InterruptedException ie) {
-                        System.err.println("Sound interrupted");
-                        throw ie;
-                    }
+                    Sound temp1 = tone.reverberation();
+                    playTone(temp1, duration);
                     outprintsetting(temp1);
                     break;
                 case 5:
                     Sound temp2 = tone.downSamplebytwo();
-                    try {
-                        temp2.play();
-                    } catch (LineUnavailableException lue) {
-                        System.err.println("Line Unavailable; program terminates.");
-                        throw lue;
-                    } catch (InterruptedException ie) {
-                        System.err.println("Sound interrupted");
-                        throw ie;
-                    }
+                    playTone(temp2, duration);
                     outprintsetting(temp2);
                     break;
                 case 7:
@@ -548,6 +517,28 @@ public class SoundClient {
     }
 
     /**
+     * Play the given tone with the duration specified
+     *
+     * @param tone
+     * @param duration
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws LineUnavailableException
+     */
+    private static void playTone(Sound tone, double duration) throws IOException, InterruptedException, LineUnavailableException {
+        try {
+            tone.play(duration);
+            return;
+        } catch (LineUnavailableException lue) {
+            System.err.println("Line Unavailable; program terminates.");
+            throw lue;
+        } catch (InterruptedException ie) {
+            System.err.println("Sound interrupted");
+            throw ie;
+        }
+    }
+
+    /**
      * Perform a DFT for a sound object
      *
      * @param sound
@@ -555,8 +546,23 @@ public class SoundClient {
      */
     private static void performDFT(Sound sound) throws LengthNotAPowerOfTwoException {
         System.out.println("Now performing DFT to the given sound");
-        System.out.println("We will print out the frequency after the transformation.\nNow starting the transformation.");
-        double resultFreq = hw01.Math.DFT.DFTResult(sound);
-        System.out.println(String.format("Transform finished. The result is: %.2fhz", resultFreq));
+        Scanner in;
+        int numPeaksInterested = 0;
+        while (true) {
+            System.out.println("How many peaks are you interested?");
+            in = new Scanner(System.in);
+            if (!in.hasNextInt()) {
+                System.out.println("Please give me a interger for input");
+                continue;
+            }
+            numPeaksInterested = in.nextInt();
+            break;
+        }
+        System.out.println(String.format("We will print out the top %d frequency after the transformation.\nNow starting the transformation.", numPeaksInterested));
+        double[] resultFreqs = hw01.Math.DFT.DFTResult(sound, numPeaksInterested);
+        System.out.printf("The top %d frequencies are:\n", numPeaksInterested);
+        for (int i = 0; i < resultFreqs.length; ++i) {
+            System.out.printf("%d  ==>  %.2fhz\n", i, resultFreqs[i]);
+        }
     }
 }

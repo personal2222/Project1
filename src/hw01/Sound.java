@@ -16,10 +16,12 @@
 package hw01;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -37,6 +39,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * @see
  * <a href="https://www.youtube.com/watch?v=nUKya2DvYSo">
  * https://www.youtube.com/watch?v=nUKya2DvYSo</a>
+ *
+ * <a href="http://www.jsresources.org/index.html">
+ * http://www.jsresources.org/index.html</a> We also got some general ideas from
+ * this website
  * @param fileName
  */
 public class Sound {
@@ -118,7 +124,6 @@ public class Sound {
      * @throws InterruptedException
      */
     public void play(double playtime) throws LineUnavailableException, IOException, InterruptedException {
-
         try (AudioInputStream out = this.getAIS()) {
             Clip clip = AudioSystem.getClip();
             clip.open(out);
@@ -128,7 +133,6 @@ public class Sound {
             clip.close();
             out.close();
         }
-
     }
 
     /**
@@ -139,7 +143,6 @@ public class Sound {
      * @throws LineUnavailableException
      */
     public void play() throws IOException, InterruptedException, LineUnavailableException {
-
         try (AudioInputStream out = this.getAIS()) {
             Clip clip = AudioSystem.getClip();
             clip.open(out);
@@ -149,7 +152,6 @@ public class Sound {
             clip.close();
             out.close();
         }
-
     }
 
     /**
@@ -173,12 +175,12 @@ public class Sound {
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(in)) {
             out = new AudioInputStream(byteStream, this.af, byteLength);
         }
-
         return out;
     }
 
     /**
      * Retrive the sort array buffered by the shortbuffer
+     *
      *
      * @return a short array of the raw wave.
      */
@@ -193,21 +195,66 @@ public class Sound {
     /**
      * Down the sample rate by two
      *
+     * @see
+     * <a href="http://www.jsresources.org/examples/SampleRateConverter.java.html">
+     * http://www.jsresources.org/examples/SampleRateConverter.java.html</a>
+     * We borrowed the code from the pervious website
+     *
      * @return a new Sound that is almost the same as pervious except the sample
      * rate was one half of before
      * @throws UnsupportedAudioFileException
      * @throws IOException
      */
     public Sound downSamplebytwo() throws UnsupportedAudioFileException, IOException {
-        short[] buffer = this.getShortRepresentation();
-        short[] returnValue = new short[buffer.length / 2];
-        for (int i = 0; i < (buffer.length); i++) {
-            if (i % 2 == 0) {
-                returnValue[i / 2] = buffer[i];
-            }
-        }
-        ShortBuffer b = ShortBuffer.wrap(returnValue);
-        return new Sound(b, SoundIO.downSampleRateby2(this.af));
+        float fTargetSampleRate = this.af.getSampleRate() / 2;
+        File sourceFile = new File("./tempFile/soundBeforeDownRate");
+        sourceFile.getParentFile().mkdirs();
+        SoundIO.write(this, sourceFile);
+        File targetFile = new File("./tempFile/soundAfterDownRate");
+        sourceFile.getParentFile().mkdirs();
+
+        /* We try to use the same audio file type for the target
+         file as the source file. So we first have to find
+         out about the source file's properties.
+         */
+        AudioFileFormat sourceFileFormat = AudioSystem.getAudioFileFormat(sourceFile);
+        AudioFileFormat.Type targetFileType = sourceFileFormat.getType();
+
+        /* Here, we are reading the source file.
+         */
+        AudioInputStream sourceStream = null;
+        sourceStream = AudioSystem.getAudioInputStream(sourceFile);
+        AudioFormat sourceFormat = sourceStream.getFormat();
+
+        /* Since we now know that we are dealing with PCM, we know
+         that the frame rate is the same as the sample rate.
+         */
+        float fTargetFrameRate = fTargetSampleRate;
+
+        /* Here, we are constructing the desired format of the
+         audio data (as the result of the conversion should be).
+         We take over all values besides the sample/frame rate.
+         */
+        AudioFormat targetFormat = new AudioFormat(
+                sourceFormat.getEncoding(),
+                fTargetSampleRate,
+                sourceFormat.getSampleSizeInBits(),
+                sourceFormat.getChannels(),
+                sourceFormat.getFrameSize(),
+                fTargetFrameRate,
+                sourceFormat.isBigEndian());
+
+        /* Now, the conversion takes place.
+         */
+        AudioInputStream targetStream = AudioSystem.getAudioInputStream(targetFormat, sourceStream);
+
+
+        /* And finally, we are trying to write the converted audio
+         data to a new file.
+         */
+        int nWrittenBytes = 0;
+        nWrittenBytes = AudioSystem.write(targetStream, targetFileType, targetFile);
+        return SoundIO.read(targetFile.getPath());
     }
 
     /**
@@ -220,12 +267,26 @@ public class Sound {
      * @throws UnsupportedAudioFileException
      */
     public Sound echo(int delayInMiSec, double decay) throws UnsupportedAudioFileException {
-        int sampleDelay = (int) ((double) this.af.getSampleRate() * (float) delayInMiSec);
-        short buf = 0;
-        Sound a = this.SetVolumn(-0.5);//This is to avoid noise
+        double delayInSec = (double) delayInMiSec / 1000.0;
+        //int sampleDelay = (int) ((double) this.af.getSampleRate() * delayInSec);
+        int sampleDelay = (int) (this.af.getSampleRate() * this.af.getChannels() * delayInSec);
+        if (sampleDelay % 2 == 1 && this.af.getChannels() == 2) {
+            sampleDelay += 1;
+        }
+        Sound a = null;
+        try {
+            a = this.SetVolumn(-0.5);//This is to avoid noise
+        } catch (VolumeOutOfRangeException vore) {
+            vore.printStackTrace(); // The VolumeOutOfRangeException will only thrown when try to use
+            //positive numbers in set volume. So I choose to catch this exception here
+            //and do nothing in order not to mess up other progrmas that calls this method.
+        }
         short[] buffer = a.getShortRepresentation();
         for (int i = 0; i < buffer.length - sampleDelay; i++) {
             buffer[i + sampleDelay] += buffer[i] * decay;
+            if (buffer[i + sampleDelay] >= Short.MAX_VALUE) {
+                buffer[i + sampleDelay] = Short.MAX_VALUE - 200;
+            }
         }
         ShortBuffer b = ShortBuffer.wrap(buffer);
         return new Sound(b, this.af);
@@ -240,17 +301,17 @@ public class Sound {
      * @return A new Sound representing the original sound after the volume
      * adjustment.
      * @throws UnsupportedAudioFileException
+     * @throws hw01.VolumeOutOfRangeException
      */
-    public Sound SetVolumn(double set) throws UnsupportedAudioFileException {
+    public Sound SetVolumn(double set) throws UnsupportedAudioFileException, VolumeOutOfRangeException {
         double ratio = 1 + set;
         short[] buffer = this.getShortRepresentation();
         for (int i = 0; i < buffer.length; i++) {
             buffer[i] = (short) (buffer[i] * ratio);
         }
-
         Sound rtn = new Sound(ShortBuffer.wrap(buffer), this.af);
         if (rtn.getMaxVolume() >= Short.MAX_VALUE) {
-            return this;
+            throw new VolumeOutOfRangeException();
         } else {
             return rtn;
         }
@@ -265,7 +326,7 @@ public class Sound {
      * @throws UnsupportedAudioFileException
      * @throws IOException
      */
-    public void SetthisVolumn(double set) throws UnsupportedAudioFileException, IOException {
+    public void SetthisVolumn(double set) throws UnsupportedAudioFileException, IOException, VolumeOutOfRangeException {
         Sound temp = this.SetVolumn(set);
         this.s = temp.s;
     }
@@ -277,29 +338,47 @@ public class Sound {
      * @throws UnsupportedAudioFileException
      * @throws IOException
      */
-    public Sound Reverberation() throws UnsupportedAudioFileException, IOException {
+    public Sound reverberation() throws UnsupportedAudioFileException, IOException {
         Sound raw2 = new Sound(this.getS(), this.getAf());
         Sound raw1 = new Sound(this.getS(), this.getAf());
-        Sound result;
 
-        result = raw2.addSound(raw1.echo(100, 0.80));
-        result = result.addSound(raw1.echo(110, 0.70));
-        result = result.addSound(raw1.echo(120, 0.65));
-        result = result.addSound(raw1.echo(130, 0.60));
-        result = result.addSound(raw1.echo(140, 0.55));
-        result = result.addSound(raw1.echo(150, 0.50));
-        result = result.addSound(raw1.echo(160, 0.45));
-        result = result.addSound(raw1.echo(170, 0.40));
-        result = result.addSound(raw1.echo(180, 0.35));
-        result = result.addSound(raw1.echo(190, 0.33));
-        result = result.addSound(raw1.echo(200, 0.30));
-        result = result.addSound(raw1.echo(210, 0.28));
-        result = result.addSound(raw1.echo(220, 0.25));
-        result = result.addSound(raw1.echo(230, 0.2));
-
-        return result;
+        raw2 = raw1.echo(200, 0.4);
+        raw2 = raw2.echo(300, 0.3);
+        raw2 = raw2.echo(400, 0.2);
+        return raw2;
     }
 
+//    /**
+//     * Add a delay to a sound object
+//     *
+//     * @param delayInMiSec The delay in ms
+//     * @param decay 0 to 1 representing the percentage of the amplitude of the
+//     * echo to the original sound. 1 represents 100%
+//     * @return A new Sound with delay
+//     * @throws UnsupportedAudioFileException
+//     */
+//    public Sound delay(int delayInMiSec, double decay) throws UnsupportedAudioFileException {
+//        double delayInSec = delayInMiSec / 1000;
+//        int sampleDelay = (int) ((double) this.af.getSampleRate() * this.af.getChannels() * delayInSec);
+//        if (sampleDelay % 2 == 1 && this.af.getChannels() == 2) {
+//            sampleDelay += 1;
+//        }
+//        Sound a = null;
+//        try {
+//            a = this.SetVolumn(-0.5);//This is to avoid noise
+//        } catch (VolumeOutOfRangeException vore) {
+//            vore.printStackTrace(); // The VolumeOutOfRangeException will only thrown when try to use
+//            //positive numbers in set volume. So I choose to catch this exception here
+//            //and do nothing in order not to mess up other progrmas that calls this method.
+//        }
+//        short[] buffer = a.getShortRepresentation();
+//        short[] result = a.getShortRepresentation();
+//        for (int i = 0; i < buffer.length - sampleDelay; i++) {
+//            result[i + sampleDelay] = (short) (buffer[i] * decay + result[i + sampleDelay]);
+//        }
+//        ShortBuffer b = ShortBuffer.wrap(buffer);
+//        return new Sound(b, this.af);
+//    }
     /**
      * Add two sound objects to each other. Mainly by adding their waves
      * together.
@@ -310,14 +389,20 @@ public class Sound {
      * @throws IOException
      */
     public Sound addSound(Sound b) throws UnsupportedAudioFileException, IOException {
-        short[] a;
-        short[] c;
+        short[] a = null;
+        short[] c = null;
         if (this.getAf() != b.getAf()) {
             return this;
         } else {
             if ((b.getMaxVolume() + this.getMaxVolume()) >= Short.MAX_VALUE) {
-                a = this.SetVolumn(-0.5).getShortRepresentation();
-                c = b.SetVolumn(-0.5).getShortRepresentation();
+                try {
+                    a = this.SetVolumn(-0.5).getShortRepresentation();
+                    c = b.SetVolumn(-0.5).getShortRepresentation();
+                } catch (VolumeOutOfRangeException vore) {
+                    vore.printStackTrace(); // The VolumeOutOfRangeException will only thrown when try to use
+                    //positive numbers in set volume. So I choose to catch this exception here
+                    //and do nothing in order not to mess up other progrmas that calls this method.
+                }
             } else {
                 a = this.getShortRepresentation();
                 c = b.getShortRepresentation();
@@ -328,7 +413,6 @@ public class Sound {
             }
             return new Sound(ShortBuffer.wrap(a), this.af);
         }
-
     }
 
     /**
@@ -355,4 +439,15 @@ public class Sound {
             return temp2;
         }
     }
+}
+
+class VolumeOutOfRangeException extends Exception {
+
+    public VolumeOutOfRangeException(String message) {
+        super(message);
+    }
+
+    public VolumeOutOfRangeException() {
+    }
+
 }

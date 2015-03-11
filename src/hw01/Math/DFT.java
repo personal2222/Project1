@@ -36,7 +36,7 @@ public class DFT {
     public static Complex[] SoundDFT(Sound sound) throws LengthNotAPowerOfTwoException {
         short[] rawSound = sound.getShortRepresentation();
         Complex[] waveRepr = new Complex[rawSound.length];
-        System.out.println("Read Wave");
+        System.out.println("Reading Wave");
         for (int i = 0; i < waveRepr.length; ++i) {
             waveRepr[i] = new Complex(rawSound[i] / 1024, 0);
         }
@@ -65,7 +65,6 @@ public class DFT {
     }
 
     /**
-     *
      * This program implements the Fast Fourier Transform for performing DFT
      *
      * Adapted from the code shown in the link below
@@ -73,8 +72,6 @@ public class DFT {
      * @see
      * <a href="http://bbs.csdn.net/topics/390785412">
      * http://bbs.csdn.net/topics/390785412</a>
-     *
-     *
      *
      * @param series An array of complex numbers to perform the DFT
      * @return the result as an array of complex numbers
@@ -166,28 +163,62 @@ public class DFT {
     }
 
     /**
+     * Return the maximum n peaks indicated by numPeaksInterested as a double
+     * array
      *
-     *
-     * @see http://www.dosits.org/science/soundmeasurement/soundshear/
-     * @param sound
-     * @return
+     * @see
+     * <a href="http://www.dosits.org/science/soundmeasurement/soundshear/">
+     * http://www.dosits.org/science/soundmeasurement/soundshear/</a>
+     * @param sound the sound object for performing a DFT
+     * @param numPeaksInterested top n peaks interested.
+     * @return a double array of top n frequencies
      * @throws LengthNotAPowerOfTwoException
      */
-    public static double DFTResult(Sound sound) throws LengthNotAPowerOfTwoException {
+    public static double[] DFTResult(Sound sound, int numPeaksInterested) throws LengthNotAPowerOfTwoException {
         int maxHumanFreq = 20000;
         int minHumanFreq = 20;
         Complex[] afterTransform = SoundDFT(sound);
-        double maxMagnitude = Double.MIN_VALUE;
-        int maxIndex = 0;
         int startingIndex = (int) (minHumanFreq * afterTransform.length / sound.getAf().getSampleRate());
         int endingIndex = (int) (maxHumanFreq * afterTransform.length / sound.getAf().getSampleRate());
+        int[] maxIndexArray = findMaxNIndex(startingIndex, endingIndex, numPeaksInterested, afterTransform);
+        double[] maxFreqArray = new double[maxIndexArray.length];
+        for (int i = 0; i < maxIndexArray.length; ++i) {
+            maxFreqArray[i] = maxIndexArray[i] * sound.getAf().getSampleRate() / afterTransform.length;
+        }
+        return maxFreqArray;
+    }
+
+    /**
+     * Find the index of the max n magnitudes of an array of complex numbers and
+     * return the max index as an int array.
+     *
+     * @param startingIndex the starting index for finding the max
+     * @param endingIndex the endinging index for finding the max
+     * @param numPeaksInterested how many max values we want to find
+     * @param afterTransform a Complex array for finding maximum
+     * @return
+     */
+    private static int[] findMaxNIndex(int startingIndex, int endingIndex, int numPeaksInterested, Complex[] afterTransform) {
+        double[] maxMagnitudeArray = new double[numPeaksInterested];
+        int[] maxIndexArray = new int[numPeaksInterested];
+        for (int i = 0; i < maxMagnitudeArray.length; ++i) {
+            maxMagnitudeArray[i] = Double.MIN_VALUE;
+        }
         for (int i = startingIndex; i < endingIndex; ++i) {
-            if (afterTransform[i].magnitude() > maxMagnitude) {
-                maxMagnitude = afterTransform[i].magnitude();
-                maxIndex = i;
+            for (int j = 0; j < numPeaksInterested; ++j) {
+                double resultMagnitude = afterTransform[i].magnitude();
+                if (resultMagnitude > maxMagnitudeArray[j]) {
+                    for (int k = numPeaksInterested - 2; k >= j; --k) {
+                        maxMagnitudeArray[k + 1] = maxMagnitudeArray[k];
+                        maxIndexArray[k + 1] = maxIndexArray[k];
+                    }
+                    maxMagnitudeArray[j] = resultMagnitude;
+                    maxIndexArray[j] = i;
+                    break;
+                }
             }
         }
-        return maxIndex * sound.getAf().getSampleRate() / afterTransform.length;
+        return maxIndexArray;
     }
 
 }
